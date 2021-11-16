@@ -1,4 +1,4 @@
-#include "ssnfs.h"
+#include "ssnfs.x"
 
 
 open_output*
