@@ -56,13 +56,17 @@ int _write_update_to_vdisk() {
 
     for (int user = 0; user < MAX_NUM_USERS; user++) {
         fputs(ub.users[user].name, vdisk);
+        fputs(VDISK_DELIM, vdisk);
         for (int file = 0; file < MAX_USER_FILES; file++) {
             fputs(ub.users[user].files[file].name, vdisk);
+            fputs(VDISK_DELIM, vdisk);
             for (int block = 0; block < FILE_SIZE; block++) {
+                fputs(VDISK_DELIM, vdisk);
                 //fputs(ub.users[user].files[file].blocks[block], vdisk);
                 fprintf(vdisk, "%d ", ub.users[user].files[file].blocks[block]);
             }
         }
+        fputs(VDISK_DELIM, vdisk);
     }
 }
 
