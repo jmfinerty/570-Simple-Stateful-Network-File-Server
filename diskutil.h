@@ -2,11 +2,11 @@
 #define DISKUTIL_H
 
 // Disk
-#define VDISK_LOC      "vdisk"
-#define VDISK_DELIM    "\n"
-#define VDISK_CAPACITY 16777216 // 16 mB
-#define BLOCK_SIZE     512      // bytes per block
-#define FILE_SIZE      64       // blocks per file
+#define VDISK_LOC       "vdisk"
+#define VDISK_DELIM     "\n"
+#define VDISK_CAPACITY  16777216 // 16 mB
+#define BLOCK_SIZE      512      // bytes per block
+#define FILE_SIZE       64       // blocks per file
 
 // Files
 #define DEFAULT_FILE_NAME "SOMEFILE"
@@ -57,6 +57,7 @@ struct _UsersBlocks {
 
 FileTable* _initialize_file_table();
 int _initialize_users_and_blocks();
+int _read_update_from_vdisk();
 int _write_update_to_vdisk();
 int initialize_virtual_disk();
 
