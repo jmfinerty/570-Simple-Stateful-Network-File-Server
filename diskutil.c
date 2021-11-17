@@ -71,6 +71,7 @@ int _write_update_to_vdisk() {
 
     for (int block = 0; block < MAX_NUM_BLOCKS; block++) {
         fputs(blocks[block].data, vdisk);
+        fputs(VDISK_DELIM, vdisk);
     }
 }
 
