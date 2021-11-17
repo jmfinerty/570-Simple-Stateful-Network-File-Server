@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "server.h"
 #include "diskutil.h"
+
+
+FileTable* ft = NULL;
 
 
 FileTable* _initialize_file_table() {
@@ -18,4 +22,22 @@ FileTable* _initialize_file_table() {
     }
 
     return table;
+}
+
+int initialize_virtual_disk() {
+    if (ft == NULL) {
+        ft = _initialize_file_table();
+    }
+
+    // check if vdisk exists. F_OK = check existence
+    // https://linux.die.net/man/2/access
+    if (access(VDISK_LOC, F_OK)) {
+        // access returned 1
+        // do something to initialize disk for the first time
+    } else {
+        FILE* vdisk = fopen(VDISK_LOC, "r");
+        // access returned 0
+        // do something to read existing disk into memory
+    }
+
 }

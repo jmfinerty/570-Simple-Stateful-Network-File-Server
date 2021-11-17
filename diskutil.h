@@ -24,6 +24,7 @@ struct _FileTable {
 
 
 FileTable* _initialize_file_table();
+int initialize_virtual_disk();
 
 
 #endif /* DISKUTIL_H */
