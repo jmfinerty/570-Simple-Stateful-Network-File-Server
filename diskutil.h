@@ -46,7 +46,7 @@ struct _User {
 }; typedef struct _User User;
 
 struct _Block {
-    char data[BLOCK_SIZE];
+    char data[BLOCK_SIZE+1]; // +1 must be null terminated for fgets
 }; typedef struct _Block Block;
 
 struct _UsersBlocks {
