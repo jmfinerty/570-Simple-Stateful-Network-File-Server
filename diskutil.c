@@ -44,7 +44,7 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
             }
         }
     }
-
+    
     return 1;
 }
 
@@ -57,10 +57,8 @@ int initialize_virtual_disk() {
     // check if vdisk exists. F_OK = check existence
     // https://linux.die.net/man/2/access
     if (access(VDISK_LOC, F_OK)) {
-        // access returned 1
-        // do something to initialize disk for the first time
-    } else {
         _initialize_users_and_blocks(&ub);
+    } else {
         FILE* vdisk = fopen(VDISK_LOC, "r");
     }
 
