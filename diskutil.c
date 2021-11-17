@@ -6,7 +6,7 @@
 #include "diskutil.h"
 
 
-FileTable* ft = NULL;
+FileTable* filetable = NULL;
 UsersBlocks ub;
 Block blocks[MAX_NUM_BLOCKS];
 
@@ -107,8 +107,8 @@ int write_update_to_vdisk() {
 
 
 int initialize_virtual_disk() {
-    if (ft == NULL) {
-        ft = _initialize_file_table();
+    if (filetable == NULL) {
+        filetable = _initialize_file_table();
     }
 
     // check if vdisk exists. F_OK = check existence
