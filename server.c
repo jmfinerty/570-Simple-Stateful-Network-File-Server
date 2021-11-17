@@ -36,16 +36,16 @@ read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 
 write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
-	char out_message[1024];
+	char out_msg[1024];
 
 	initialize_virtual_disk();
 
 	if (!is_valid_file_descriptor(argp->fd))
-		sprintf(out_message, "ERROR: File descriptor (%d) unknown.", argp->fd);
+		sprintf(out_msg, "ERROR: File descriptor (%d) unknown.", argp->fd);
 	else if (!is_valid_user_name(argp->user_name))
-		sprintf(out_message, "ERROR: User (%s) unknown.", argp->user_name);
+		sprintf(out_msg, "ERROR: User (%s) unknown.", argp->user_name);
 	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(argp->user_name), filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName))
-		sprintf(out_message, "ERROR: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
+		sprintf(out_msg, "ERROR: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
 
 	else {
 		int file_descriptor = argp->fd;
@@ -58,7 +58,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 		int new_pos = old_pos - 1 + bytes_to_write;
 
 		if (new_pos > MAX_POINTER_POS)
-			sprintf(out_message, "ERROR: Cannot write to (%s) past EOF.", file_name);
+			sprintf(out_msg, "ERROR: Cannot write to (%s) past EOF.", file_name);
 		else {
 			int block_index_in_usersblocks = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file
 			int pos_in_block_in_usersblocks = old_pos % BLOCK_SIZE; // byte 1, 2, 3... within block 1, 2, 3...
@@ -70,7 +70,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 			int byte_index_in_buffer = 0;
 			while (byte_index_in_buffer < bytes_to_write) {
 				if (block_index_in_usersblocks > FILE_SIZE) {
-					sprintf(out_message, "ERROR: Reached EOF while writing to (%s).", file_name);
+					sprintf(out_msg, "ERROR: Reached EOF while writing to (%s).", file_name);
 					break;
 				}
 				else {
@@ -84,8 +84,15 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 				}
 				byte_index_in_buffer += 1;
 			}
+			write_update_to_vdisk();
+			write_update_to_filetable(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
+			sprintf(out_msg, "WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
 		}
 	}
+
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
 
 	return &result;
 }

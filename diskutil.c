@@ -26,6 +26,15 @@ FileTable* _initialize_file_table() {
 }
 
 
+int write_update_to_filetable(char* user_name, char* file_name, int file_descriptor, int file_pointer_pos) {
+    for (int entry; entry < MAX_FT_SIZE; entry++)
+        if (strcmp(filetable->entries[entry].ownerUserName, user_name) == 0)
+            if (filetable->entries[entry].fileDescriptor == file_descriptor)
+                filetable->entries[entry].filePointerPos = file_pointer_pos;
+    return 0;
+}
+
+
 // In a UsersBlocks,
 // copies 0 into every block, DEFAULT_USER_NAME into every user's name,
 // DEFAULT_FILE_NAME into every file name, and 0 into every file's blocks
