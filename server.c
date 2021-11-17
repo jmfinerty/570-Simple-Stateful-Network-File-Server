@@ -49,11 +49,10 @@ read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 
-	int file_descriptor = argp->fd;
-	_check_file_descriptor(file_descriptor);
-
 	initialize_virtual_disk();
 
+	int file_descriptor = argp->fd;
+	_check_file_descriptor(file_descriptor);
 
 	return &result;
 }
