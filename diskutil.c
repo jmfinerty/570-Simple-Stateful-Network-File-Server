@@ -48,6 +48,7 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
     return 1;
 }
 
+
 int _write_update_to_vdisk() {
     FILE* vdisk = fopen(VDISK_LOC, "w");
     //https://www.tutorialspoint.com/cprogramming/c_file_io.htm
@@ -76,6 +77,7 @@ int _write_update_to_vdisk() {
 
     fclose(vdisk);
 }
+
 
 int initialize_virtual_disk() {
     if (ft == NULL) {
