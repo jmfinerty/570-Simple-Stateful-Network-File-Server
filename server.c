@@ -1,4 +1,5 @@
 #include "ssnfs.h"
+#include "server.h"
 
 
 open_output*
