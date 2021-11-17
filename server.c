@@ -2,6 +2,9 @@
 #include "server.h"
 #include "diskutil.h"
 
+#define true 1
+#define false 0
+typedef int bool;
 
 int _check_file_descriptor(int file_descriptor) {
 
