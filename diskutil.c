@@ -57,7 +57,7 @@ int _read_update_from_vdisk() {
         for (int file = 0; file < MAX_USER_FILES; file++) {
             fgets(ub.users[user].files[file].name, MAX_FILE_NAME_LEN, vdisk);
             for (int block = 0; block < FILE_SIZE; block++) {
-                fscanf(vdisk, "%d ", ub.users[user].files[file].blocks[block]);
+                fscanf(vdisk, "%d ", &ub.users[user].files[file].blocks[block]);
             }
         }
     }
