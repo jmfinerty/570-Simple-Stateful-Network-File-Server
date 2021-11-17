@@ -44,10 +44,26 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
             }
         }
     }
-    
+
     return 1;
 }
 
+int _write_update_to_vdisk() {
+    FILE* vdisk = fopen(VDISK_LOC, "w");
+    //https://www.tutorialspoint.com/cprogramming/c_file_io.htm
+
+    fputs(ub.blocks, vdisk);
+
+    for (int user = 0; user < MAX_NUM_USERS; user++) {
+        fputs(ub.users[user].name, vdisk);
+        for (int file = 0; file < MAX_USER_FILES; file++) {
+            fputs(ub.users[user].files[file].name, vdisk);
+            for (int block = 0; block < FILE_SIZE; block++) {
+                fputs(ub.users[user].files[file].blocks[block], vdisk);
+            }
+        }
+    }
+}
 
 int initialize_virtual_disk() {
     if (ft == NULL) {
