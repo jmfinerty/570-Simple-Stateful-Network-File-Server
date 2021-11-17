@@ -71,7 +71,7 @@ int _read_update_from_vdisk() {
 }
 
 
-int _write_update_to_vdisk() {
+int write_update_to_vdisk() {
     FILE* vdisk = fopen(VDISK_LOC, "w");
     //https://www.tutorialspoint.com/cprogramming/c_file_io.htm
 
