@@ -32,7 +32,7 @@ struct _FileTableEntry {
 }; typedef struct _FileTableEntry FileTableEntry;
 
 struct _FileTable {
-    FileTableEntry entry[MAX_FT_SIZE];
+    FileTableEntry entries[MAX_FT_SIZE];
 }; typedef struct _FileTable FileTable;
 
 struct _FileInfo {

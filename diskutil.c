@@ -16,10 +16,10 @@ FileTable* _initialize_file_table() {
 
     // fill each file in table with default values
     for (int i = 0; i < MAX_FT_SIZE; i++) {
-        strcpy(table->entry[i].ownerUserName, DEFAULT_USER_NAME);
-        strcpy(table->entry[i].fileName, DEFAULT_FILE_NAME);
-        table->entry[i].fileDescriptor = 0;
-        table->entry[i].filePointerPos = 0;
+        strcpy(table->entries[i].ownerUserName, DEFAULT_USER_NAME);
+        strcpy(table->entries[i].fileName, DEFAULT_FILE_NAME);
+        table->entries[i].fileDescriptor = 0;
+        table->entries[i].filePointerPos = 0;
     }
 
     return table;
