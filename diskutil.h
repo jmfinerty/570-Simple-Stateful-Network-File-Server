@@ -23,4 +23,7 @@ struct _FileTable {
 }; typedef struct _FileTable FileTable;
 
 
+FileTable* _initialize_file_table();
+
+
 #endif /* DISKUTIL_H */
