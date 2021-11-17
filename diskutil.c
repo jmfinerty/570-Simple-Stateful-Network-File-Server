@@ -109,10 +109,11 @@ int initialize_virtual_disk() {
 
     // check if vdisk exists. F_OK = check existence
     // https://linux.die.net/man/2/access
-    if (access(VDISK_LOC, F_OK)) {
+    if (access(VDISK_LOC, F_OK)) { // returned 1 = doesnt exist
         _initialize_users_and_blocks(&ub);
-    } else {
-        FILE* vdisk = fopen(VDISK_LOC, "r");
+        write_update_to_vdisk();
+    } else { // disk already exists, read it in
+        _read_update_from_vdisk();
     }
 
     return 0;
