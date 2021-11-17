@@ -49,6 +49,28 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
 }
 
 
+int _read_update_from_vdisk() {
+    FILE* vdisk = fopen(VDISK_LOC, "r");
+
+    for (int user = 0; user < MAX_NUM_USERS; user++) {
+        fgets(ub.users[user].name, MAX_USER_NAME_LEN, vdisk);
+        for (int file = 0; file < MAX_USER_FILES; file++) {
+            fgets(ub.users[user].files[file].name, MAX_FILE_NAME_LEN, vdisk);
+            for (int block = 0; block < FILE_SIZE; block++) {
+                fscanf(vdisk, "%d ", ub.users[user].files[file].blocks[block]);
+            }
+        }
+    }
+
+    for (int block = 0; block < MAX_NUM_BLOCKS; block++) {
+        fgets(blocks[block].data, BLOCK_SIZE, vdisk);
+    }
+
+    fclose(vdisk);
+    return 1;
+}
+
+
 int _write_update_to_vdisk() {
     FILE* vdisk = fopen(VDISK_LOC, "w");
     //https://www.tutorialspoint.com/cprogramming/c_file_io.htm
@@ -76,6 +98,7 @@ int _write_update_to_vdisk() {
     }
 
     fclose(vdisk);
+    return 1;
 }
 
 
