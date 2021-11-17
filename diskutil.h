@@ -44,6 +44,10 @@ struct _User {
     FileInfo files[MAX_USER_FILES];
 }; typedef struct _User User;
 
+struct _Block {
+    char data[BLOCK_SIZE];
+}; typedef struct _Block Block;
+
 struct _UsersBlocks {
     char blocks[MAX_USER_BLOCKS];
     User users[MAX_NUM_USERS];
