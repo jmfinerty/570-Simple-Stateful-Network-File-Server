@@ -55,6 +55,7 @@ struct _UsersBlocks {
 
 
 FileTable* _initialize_file_table();
+int _initialize_users_and_blocks();
 int initialize_virtual_disk();
 
 
