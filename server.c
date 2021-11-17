@@ -1,5 +1,6 @@
 #include "ssnfs.h"
 #include "server.h"
+#include "diskutil.h"
 
 
 open_output*

@@ -2,12 +2,12 @@ all: client server
 
 client : client.o ssnfs_clnt.o  ssnfs_xdr.o
 	gcc -o client client.o ssnfs_clnt.o ssnfs_xdr.o
-server: ssnfs_xdr.o  ssnfs_svc.o server.o
+server: ssnfs_xdr.o ssnfs_svc.o server.o
 	gcc -o server server.o ssnfs_svc.o ssnfs_xdr.o
 client.o: ssnfs.h client.c
 	gcc -c client.c
 server.o: ssnfs.h server.c
-	gcc -c server.c
+	gcc -c server.c diskutil.c
 ssnfs_svc.o: ssnfs.h ssnfs_svc.c
 	gcc -c ssnfs_svc.c
 ssnfs_clnt.o: ssnfs_clnt.c ssnfs.h
@@ -18,4 +18,5 @@ ssnfs.h:
 	rpcgen ssnfs.x
 
 clean :
-	rm  *.o *~ client server ssnfs_* ssnfs.h
+	rm  *.o *~ client server
+	rm ssnfs_* ssnfs.h
