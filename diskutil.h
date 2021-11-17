@@ -49,7 +49,7 @@ struct _Block {
 }; typedef struct _Block Block;
 
 struct _UsersBlocks {
-    char blocks[MAX_USER_BLOCKS];
+    char blocks[MAX_NUM_BLOCKS];
     User users[MAX_NUM_USERS];
 }; typedef struct _UsersBlocks UsersBlocks;
 
