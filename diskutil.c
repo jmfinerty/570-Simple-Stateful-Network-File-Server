@@ -73,6 +73,8 @@ int _write_update_to_vdisk() {
         fputs(blocks[block].data, vdisk);
         fputs(VDISK_DELIM, vdisk);
     }
+
+    fclose(vdisk);
 }
 
 int initialize_virtual_disk() {
