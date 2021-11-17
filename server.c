@@ -3,6 +3,24 @@
 #include "diskutil.h"
 
 
+int _check_file_descriptor(int file_descriptor) {
+
+	// file_descriptor should be non-negative
+	// and should be within the range of possible entries in FileTable
+	if (file_descriptor < 0 || file_descriptor > MAX_FT_SIZE) {
+		return 1;
+	} else { // file descriptor should exist in FileTable
+		for (int file = 0; file < MAX_FT_SIZE; file++) {
+			if (filetable->entries[file].fileDescriptor == file_descriptor) {
+				return 0;
+			}
+		}
+	}
+
+	return 1;
+}
+
+
 open_output*
 open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	static open_output result;
@@ -32,10 +50,13 @@ read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 }
 
 
-write_output*
-write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
+write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 
+	int file_descriptor = argp->fd;
+	_check_file_descriptor(file_descriptor);
+
+	initialize_virtual_disk();
 
 
 	return &result;
