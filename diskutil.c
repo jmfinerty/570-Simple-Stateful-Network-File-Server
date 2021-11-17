@@ -40,4 +40,6 @@ int initialize_virtual_disk() {
         // do something to read existing disk into memory
     }
 
+    return 1;
+
 }
