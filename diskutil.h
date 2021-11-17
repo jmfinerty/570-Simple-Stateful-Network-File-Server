@@ -3,7 +3,7 @@
 
 // Disk
 #define VDISK_LOC      "vdisk"
-#define VDISK_DELIM    ";"
+#define VDISK_DELIM    "\n"
 #define VDISK_CAPACITY 16777216 // 16 mB
 #define BLOCK_SIZE     512      // bytes per block
 #define FILE_SIZE      64       // blocks per file
