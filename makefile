@@ -18,5 +18,4 @@ ssnfs.h:
 	rpcgen ssnfs.x
 
 clean :
-	rm  *.o *~ client server
-	rm ssnfs_* ssnfs.h
+	rm  *.o *~ client server ssnfs_* ssnfs.h
