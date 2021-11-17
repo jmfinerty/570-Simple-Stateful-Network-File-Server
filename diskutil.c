@@ -31,6 +31,10 @@ FileTable* _initialize_file_table() {
 // DEFAULT_FILE_NAME into every file name, and 0 into every file's blocks
 int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
     memset(usersblocks->blocks, '0', MAX_NUM_BLOCKS); // copy 0 into every block
+    for (int block = 0; block < MAX_NUM_BLOCKS; block++) {
+        memset(blocks[block].data, ' ', BLOCK_SIZE);
+    }
+
     for (int user = 0; user < MAX_NUM_USERS; user++) {
         strcpy(usersblocks->users[user].name, DEFAULT_USER_NAME); // copy default
         for (int file = 0; file < MAX_USER_FILES; file++) {
@@ -40,6 +44,7 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
             }
         }
     }
+
     return 1;
 }
 
