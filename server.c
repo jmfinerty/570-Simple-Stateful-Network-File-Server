@@ -7,16 +7,12 @@ int _check_file_descriptor(int file_descriptor) {
 
 	// file_descriptor should be non-negative
 	// and should be within the range of possible entries in FileTable
-	if (file_descriptor < 0 || file_descriptor > MAX_FT_SIZE) {
+	if (file_descriptor < 0 || file_descriptor > MAX_FT_SIZE)
 		return 1;
-	} else { // file descriptor should exist in FileTable
-		for (int file = 0; file < MAX_FT_SIZE; file++) {
-			if (filetable->entries[file].fileDescriptor == file_descriptor) {
+	else // file descriptor should exist in FileTable
+		for (int file = 0; file < MAX_FT_SIZE; file++)
+			if (filetable->entries[file].fileDescriptor == file_descriptor)
 				return 0;
-			}
-		}
-	}
-
 	return 1;
 }
 
