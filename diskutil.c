@@ -8,6 +8,7 @@
 
 FileTable* ft = NULL;
 UsersBlocks ub;
+Block blocks[MAX_NUM_BLOCKS];
 
 
 FileTable* _initialize_file_table() {
