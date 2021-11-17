@@ -14,6 +14,8 @@ ssnfs_clnt.o: ssnfs_clnt.c ssnfs.h
 	gcc -c ssnfs_clnt.c
 ssnfs_xdr.o: ssnfs_xdr.c ssnfs.h
 	gcc -c ssnfs_xdr.c
+ssnfs.h: ssnfx.x
+	rpcgen ssnfs.x
 
 clean :
 	rm  *.o *~
