@@ -55,6 +55,10 @@ struct _UsersBlocks {
 }; typedef struct _UsersBlocks UsersBlocks;
 
 
+extern FileTable* filetable;
+extern UsersBlocks ub;
+extern Block blocks[MAX_NUM_BLOCKS];
+
 FileTable* _initialize_file_table();
 int _initialize_users_and_blocks();
 int _read_update_from_vdisk();
