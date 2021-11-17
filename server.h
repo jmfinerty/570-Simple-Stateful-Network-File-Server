@@ -7,7 +7,7 @@
 
 #define MAX_FT_SIZE       200
 #define MAX_FILE_NAME_LEN 20
-#define MAX_USER_NAME_LEN 20
+#define MAX_USER_NAME_LEN 15
 
 
 struct _FileTableEntry {
