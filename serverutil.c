@@ -11,6 +11,15 @@ int get_filetable_index_of_file_descriptor(int file_descriptor) {
 }
 
 
+int get_filetable_index_of_user_file(char* user_name, char* file_name) {
+    for (int entry = 0; entry < MAX_FT_SIZE; entry++)
+        if (strcmp(user_name, filetable->entries[entry].ownerUserName) == 0)
+            if (strcmp(file_name, filetable->entries[entry].fileName) == 0)
+                return entry;
+    return -1;
+}
+
+
 int get_usersblocks_index_of_user_name(char* user_name) {
 	for (int user = 0; user < MAX_NUM_USERS; user++)
 		if (strcmp(user_name, ub.users[user].name) == 0) // 0 = exact match
@@ -25,6 +34,15 @@ int get_usersblocks_index_of_file(int user_index_in_usersblocks, char* file_name
             return file;
     }
     return -1;
+}
+
+
+int get_num_user_files_in_usersblocks(int user_index_in_usersblocks) {
+    int result = 0;
+    for (int file = 0; file < MAX_USER_FILES; file++)
+        if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) != 0)
+            result += 1;
+    return result;
 }
 
 

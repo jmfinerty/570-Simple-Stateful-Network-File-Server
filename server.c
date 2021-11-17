@@ -4,8 +4,50 @@
 #include "serverutil.h"
 
 
-open_output*
-open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
+open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
+	static open_output result;
+	initialize_virtual_disk();
+
+	char* user_name = argp->user_name;
+	char* file_name = argp->file_name;
+
+	int file_index_in_filetable = get_filetable_index_of_user_file(user_name, file_name);
+
+	if (file_index_in_filetable == -1) { // file does not exist yet for user
+
+		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		if (user_index_in_usersblocks == -1) { // user does not exist yet
+			// is there room for user? 
+				// if no, error
+				// if yes, add user...
+		} else { // user exists
+			int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+			if (file_index_in_usersblocks == -1) { // file doesnt exist in table
+				// is there room for more files?
+				int num_user_files_in_userblocks = get_num_user_files_in_usersblocks(user_index_in_usersblocks);
+				if (num_user_files_in_userblocks < MAX_USER_FILES) {
+					// room for more files
+					// add file
+				} else {
+					// no room
+				}
+
+			} else { // file exists
+				// add to file table
+			}
+
+			
+			
+		}
+	} else { // file index != -1
+		//todo: set file descriptor on result, return
+	}
+
+	return &result;
+}
+
+/*
+open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	static open_output result;
 	initialize_virtual_disk();
 
@@ -22,6 +64,7 @@ open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	//	fflush((FILE *) 1);
 	return &result;
 }
+*/
 
 
 read_output*
@@ -89,7 +132,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 			sprintf(out_msg, "WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
 		}
 	}
-
+	
 	result.out_msg.out_msg_len = strlen(out_msg);
 	result.out_msg.out_msg_val = malloc(strlen(out_msg));
 	strcpy(result.out_msg.out_msg_val, out_msg);
