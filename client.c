@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
-#include "ssnfs.x"
+#include "ssnfs.h"
 
 
 CLIENT *clnt;
