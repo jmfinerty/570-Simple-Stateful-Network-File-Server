@@ -45,7 +45,7 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
         }
     }
 
-    return 1;
+    return 0;
 }
 
 
@@ -67,7 +67,7 @@ int _read_update_from_vdisk() {
     }
 
     fclose(vdisk);
-    return 1;
+    return 0;
 }
 
 
@@ -98,7 +98,7 @@ int _write_update_to_vdisk() {
     }
 
     fclose(vdisk);
-    return 1;
+    return 0;
 }
 
 
@@ -115,6 +115,6 @@ int initialize_virtual_disk() {
         FILE* vdisk = fopen(VDISK_LOC, "r");
     }
 
-    return 1;
+    return 0;
 
 }
