@@ -48,7 +48,43 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 		sprintf(out_message, "ERROR: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
 
 	else {
-		// no errors yet, try to write
+		int file_descriptor = argp->fd;
+		int file_index_in_usersblocks = get_usersblocks_index_of_file(argp->fd);
+		char* user_name = argp->user_name;
+		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		char* file_name = filetable->entries[file_index_in_usersblocks].fileName;
+		int bytes_to_write = argp->numbytes;
+		int old_pos = filetable->entries[file_index_in_usersblocks].filePointerPos;
+		int new_pos = old_pos - 1 + bytes_to_write;
+
+		if (new_pos > MAX_POINTER_POS)
+			sprintf(out_message, "ERROR: Cannot write to (%s) past EOF.", file_name);
+		else {
+			int block_index_in_usersblocks = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file
+			int pos_in_block_in_usersblocks = old_pos % BLOCK_SIZE; // byte 1, 2, 3... within block 1, 2, 3...
+			if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
+				block_index_in_usersblocks += 1;
+				pos_in_block_in_usersblocks = 0;
+			}
+
+			int byte_index_in_buffer = 0;
+			while (byte_index_in_buffer < bytes_to_write) {
+				if (block_index_in_usersblocks > FILE_SIZE) {
+					sprintf(out_message, "ERROR: Reached EOF while writing to (%s).", file_name);
+					break;
+				}
+				else {
+					blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks]].data[pos_in_block_in_usersblocks] =
+						argp->buffer.buffer_val[byte_index_in_buffer];
+					pos_in_block_in_usersblocks += 1;
+				}
+				if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
+					block_index_in_usersblocks += 1;
+					pos_in_block_in_usersblocks = 0;
+				}
+				byte_index_in_buffer += 1;
+			}
+		}
 	}
 
 	return &result;

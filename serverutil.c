@@ -19,6 +19,15 @@ int get_usersblocks_index_of_user_name(char* user_name) {
 }
 
 
+int get_usersblocks_index_of_file(int user_index_in_usersblocks, char* file_name) {
+    for (int file = 0; file < MAX_USER_FILES; file++) {
+        if (strcmp(file_name, ub.users[user_index_in_usersblocks].files[file].name) == 0)
+            return file;
+    }
+    return -1;
+}
+
+
 bool is_valid_file_descriptor(int file_descriptor) {
 	// file_descriptor should be non-negative
 	// and should be within the range of possible entries in FileTable
