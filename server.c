@@ -128,10 +128,11 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 
 	else {
 		int file_descriptor = argp->fd;
-		int file_index_in_usersblocks = get_usersblocks_index_of_file(argp->fd);
 		char* user_name = argp->user_name;
 		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
-		char* file_name = filetable->entries[file_index_in_usersblocks].fileName;
+		int file_index_in_filetable = get_filetable_index_of_file_descriptor(file_descriptor);
+		char* file_name = filetable->entries[file_index_in_filetable].fileName;
+		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
 		int bytes_to_write = argp->numbytes;
 		int old_pos = filetable->entries[file_index_in_usersblocks].filePointerPos;
 		int new_pos = old_pos - 1 + bytes_to_write;
