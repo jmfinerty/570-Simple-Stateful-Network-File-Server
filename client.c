@@ -118,23 +118,33 @@ int main (int argc, char *argv[]) {
 
 	// Testing script
 
+	int fd;
 
 	// Opening a new file to an empty vdisk
-	int fd=Open("myfile");
-	printf("File descriptor returnd inside main() is:%d\n",  fd);
+	fd = Open("myfile");
+	printf("File descriptor returned inside main() is:%d\n",  fd);
+	List();
 
 	// Opening an already-open, already-existing file
-	fd=Open("myfile");
-	printf("File descriptor returnd inside main() is:%d\n",  fd);
-
-	// List files
+	fd = Open("myfile");
+	printf("File descriptor returned inside main() is:%d\n",  fd);
 	List();
 
-	// Run with second username
-	strcpy(user_name, "john");
-	fd=Open("myfile2");
+	// Opening a new file
+	fd = Open("myfile2");
+	printf("File descriptor returned inside main() is:%d\n",  fd);
+	List();
+
+	// then closing it
+	Close(fd);
+	printf("File descriptor closed inside main() is:%d\n",  fd);
+	List();
+
+	// Re-opening it
+	fd = Open("myfile2");
 	printf("File descriptor returnd inside main() is:%d\n",  fd);
 	List();
+
 
 
 	/*
