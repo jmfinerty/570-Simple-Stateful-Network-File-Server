@@ -143,12 +143,13 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 
 				int byte_index_in_buffer = 0;
 				while (byte_index_in_buffer < bytes_to_read) {
-					if (block_index_in_usersblocks > FILE_SIZE) {
+					if (block_index_in_usersblocks >= FILE_SIZE) {
 						break;
 					}
-					if (block_index_in_usersblocks < FILE_SIZE) {
+					else {
 						pos_of_block_in_blocks = ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks];
-						out_data[block_index_in_usersblocks] = blocks[pos_of_block_in_blocks].data[pos_in_block_in_usersblocks];
+						out_data[byte_index_in_buffer] = blocks[pos_of_block_in_blocks].data[pos_in_block_in_usersblocks];
+						//printf(".%d.",out_data[byte_index_in_buffer]);fflush(stdout);
 						pos_in_block_in_usersblocks += 1;
 					}
 					if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
@@ -158,7 +159,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 					byte_index_in_buffer += 1;
 				}
 				out_data[byte_index_in_buffer] = '\0'; // terminate
-				strcpy(out_msg, out_data);
+				strcat(out_msg, out_data);
 				write_update_to_filetable(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
 			}
 		}
@@ -175,7 +176,6 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
-
 	initialize_virtual_disk();
 
 	if (!is_valid_file_descriptor(argp->fd))
@@ -188,12 +188,14 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	else {
 		int file_descriptor = argp->fd;
 		char* user_name = argp->user_name;
+
 		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
 		int file_index_in_filetable = get_filetable_index_of_file_descriptor(file_descriptor);
 		char* file_name = filetable->entries[file_index_in_filetable].fileName;
 		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+
 		int bytes_to_write = argp->numbytes;
-		int old_pos = filetable->entries[file_index_in_usersblocks].filePointerPos;
+		int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
 		int new_pos = old_pos - 1 + bytes_to_write;
 
 		if (new_pos > MAX_POINTER_POS)
@@ -208,7 +210,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 
 			int byte_index_in_buffer = 0;
 			while (byte_index_in_buffer < bytes_to_write) {
-				if (block_index_in_usersblocks > FILE_SIZE) {
+				if (block_index_in_usersblocks >= FILE_SIZE) {
 					sprintf(out_msg, "ERROR: Reached EOF while writing to (%s).", file_name);
 					break;
 				}
