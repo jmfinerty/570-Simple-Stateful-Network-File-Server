@@ -110,5 +110,22 @@ int main (int argc, char *argv[]) {
 	int fd=Open("myfile");
 	printf("File descriptor returnd inside main() is:%d\n",  fd);
 
+	// Opening an already-open, already-existing file
+	fd=Open("myfile");
+	printf("File descriptor returnd inside main() is:%d\n",  fd);
+
+	// List files
+	List();
+
+	/*
+	int i,j;
+	int fd1,fd2;
+	char buffer[100];
+	fd1=Open("File1"); // opens the file "File1"
+	for (i=0; i< 20;i++){
+		Write(fd1, "This is a test program for cs570 assignment 4", 15);
+	}
+	*/
+
 	exit (0);
 }
