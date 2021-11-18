@@ -147,29 +147,6 @@ int main (int argc, char *argv[]) {
 
 	int fd;
 
-	// Opening a new file to an empty vdisk
-	/*fd = Open("myfile");
-	printf("File descriptor returned inside main() is:%d\n",  fd);
-	List();
-
-	// Opening an already-open, already-existing file
-	fd = Open("myfile");
-	printf("File descriptor returned inside main() is:%d\n",  fd);
-	List();
-
-	// Opening a new file
-	fd = Open("myfile2");
-	printf("File descriptor returned inside main() is:%d\n",  fd);
-	List();
-
-	// then closing it
-	Close(fd);
-	printf("File descriptor closed inside main() is:%d\n",  fd);
-	List();*/
-
-
-
-
 	// TODO:
 	/*
 	one of read or write is broken, not sure which
