@@ -35,7 +35,7 @@ int write_update_to_filetable(char* user_name, char* file_name, int file_descrip
 }
 
 
-int file_descriptors_pos = 9;
+int file_descriptors_pos = INIT_FILE_DESCRIP;
 int add_entry_to_file_table(char* user_name, char* file_name) {
     for (int entry = 0; entry < MAX_FT_SIZE; entry++)
         if (strcmp(filetable->entries[entry].ownerUserName, DEFAULT_USER_NAME) == 0)
@@ -48,6 +48,21 @@ int add_entry_to_file_table(char* user_name, char* file_name) {
                 return file_descriptors_pos;
             }
     return -1;
+}
+
+
+int drop_entry_from_file_table(int file_descriptor) {
+    for (int entry = 0; entry < MAX_FT_SIZE; entry++) {
+        if (filetable->entries[entry].fileDescriptor == file_descriptor) {
+            //file_descriptors_pos -= 1; // not sure if this matters? safer to keep commented
+            filetable->entries[entry].fileDescriptor = 0;
+            filetable->entries[entry].filePointerPos = 0;
+            strcpy(filetable->entries[entry].fileName, DEFAULT_FILE_NAME);
+            strcpy(filetable->entries[entry].ownerUserName, DEFAULT_USER_NAME);
+            return 0;
+        }
+    }
+    return 1;
 }
 
 

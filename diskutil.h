@@ -12,6 +12,7 @@
 // Files
 #define DEFAULT_FILE_NAME "SOMEFILE"
 #define MAX_FILE_NAME_LEN 20
+#define INIT_FILE_DESCRIP 9          // will start descriptors at 10 (9+=1)
 
 // Users
 #define DEFAULT_USER_NAME "SOMEUSER"
@@ -68,6 +69,7 @@ int _read_update_from_vdisk();
 int write_update_to_vdisk();
 int write_update_to_filetable();
 int add_entry_to_file_table();
+int drop_entry_from_file_table();
 int add_user_to_usersblocks();
 int add_file_to_usersblocks();
 int initialize_virtual_disk();
