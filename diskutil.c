@@ -52,10 +52,7 @@ int add_entry_to_file_table(char* user_name, char* file_name) {
 
 
 int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
-
-    for (int file = 0; file < MAX_USER_FILES; file++) {
-
-
+    for (int file = 0; file < MAX_USER_FILES; file++)
         if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) == 0) {
 
             strcpy(ub.users[user_index_in_usersblocks].files[file].name, file_name);
@@ -79,8 +76,6 @@ int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
             }
             return file;
         }
-    }
-
     return -1;
 }
 
