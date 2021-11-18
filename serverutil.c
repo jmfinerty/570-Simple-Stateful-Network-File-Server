@@ -46,6 +46,15 @@ int get_num_user_files_in_usersblocks(int user_index_in_usersblocks) {
 }
 
 
+int get_num_users_in_usersblocks() {
+    int result = 0;
+    for (int user = 0; user < MAX_NUM_USERS; user++)
+        if (strcmp(DEFAULT_USER_NAME, ub.users[user].name) != 0)
+            result += 1;
+    return result;
+}
+
+
 bool is_valid_file_descriptor(int file_descriptor) {
 	// file_descriptor should be non-negative
 	// and should be within the range of possible entries in FileTable
