@@ -24,10 +24,9 @@ int Open(char* filename_to_open) {
 	open_output* result_1;
 	open_input open_file_1_arg;
 
-	strcpy(open_file_1_arg.user_name, getpwuid(getuid())->pw_name);
+	strcpy(open_file_1_arg.user_name, user_name); //getpwuid(getuid())->pw_name);
 	strcpy(open_file_1_arg.file_name, filename_to_open);
 
-	strcpy(open_file_1_arg.user_name, user_name);
   	result_1 = open_file_1(&open_file_1_arg, clnt);
 	if (result_1 == (open_output*) NULL) {
 		clnt_perror(clnt, "call failed");
@@ -48,10 +47,23 @@ void Write(int fd, char* buffer, int num_bytes_to_write) {
 	write_output* result_3;
 	write_input write_file_1_arg;
 
+	strcpy(write_file_1_arg.user_name, user_name);
+	write_file_1_arg.fd = fd;
+
+	write_file_1_arg.numbytes = num_bytes_to_write;
+	if (num_bytes_to_write > strlen(buffer))
+		write_file_1_arg.numbytes = strlen(buffer);
+
+	write_file_1_arg.buffer.buffer_len = strlen(buffer);
+	write_file_1_arg.buffer.buffer_val = malloc(strlen(buffer));
+	strcpy(write_file_1_arg.buffer.buffer_val, buffer);
+
 	result_3 = write_file_1(&write_file_1_arg, clnt);
 	if (result_3 == (write_output*) NULL) {
 		clnt_perror(clnt, "call failed");
 	}
+
+	printf("%s\n", result_3->out_msg.out_msg_val);
 }
 
 
@@ -59,10 +71,17 @@ void Read(int fd, char* buffer, int num_bytes_to_read) {
 	read_output* result_2;
 	read_input read_file_1_arg;
 
+
+	strcpy(read_file_1_arg.user_name, user_name);
+	read_file_1_arg.fd = fd;
+	read_file_1_arg.numbytes = num_bytes_to_read;
+
 	result_2 = read_file_1(&read_file_1_arg, clnt);
 	if (result_2 == (read_output*) NULL) {
 		clnt_perror(clnt, "call failed");
 	}
+
+	printf(":%s\n", result_2->out_msg.out_msg_val);
 
 }
 
@@ -71,10 +90,14 @@ void Close(int fd) {
 	close_output* result_6;
 	close_input close_file_1_arg;
 
+	close_file_1_arg.fd = fd;
+
 	result_6 = close_file_1(&close_file_1_arg, clnt);
 	if (result_6 == (close_output*) NULL) {
 		clnt_perror(clnt, "call failed");
 	}
+
+	printf("%s\n", result_6->out_msg.out_msg_val);
 }
 
 
@@ -125,7 +148,7 @@ int main (int argc, char *argv[]) {
 	int fd;
 
 	// Opening a new file to an empty vdisk
-	fd = Open("myfile");
+	/*fd = Open("myfile");
 	printf("File descriptor returned inside main() is:%d\n",  fd);
 	List();
 
@@ -142,14 +165,22 @@ int main (int argc, char *argv[]) {
 	// then closing it
 	Close(fd);
 	printf("File descriptor closed inside main() is:%d\n",  fd);
-	List();
+	List();*/
 
 	// Re-opening it
 	fd = Open("myfile2");
 	printf("File descriptor returnd inside main() is:%d\n",  fd);
 	List();
 
-	Delete("myfile2");
+	char buf1[30];
+	strcpy(buf1, "a");
+	Write(fd, buf1, 20);
+	//Close(fd);
+	fd = Open("myfile2");
+	char buf[10];
+	Read(fd, buf, 10);
+
+	//Delete("myfile2");
 	List();
 
 
