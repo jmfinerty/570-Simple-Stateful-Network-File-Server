@@ -95,10 +95,14 @@ void List() {
 void Delete(char* file_name) {
 	delete_output* result_5;
 	delete_input delete_file_1_arg;
+
+	strcpy(delete_file_1_arg.user_name, user_name);
+	strcpy(delete_file_1_arg.file_name, file_name);
 	result_5 = delete_file_1(&delete_file_1_arg, clnt);
 	if (result_5 == (delete_output*) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
+	printf("%s\n", result_5->out_msg.out_msg_val);
 }
 
 
@@ -145,6 +149,8 @@ int main (int argc, char *argv[]) {
 	printf("File descriptor returnd inside main() is:%d\n",  fd);
 	List();
 
+	Delete("myfile2");
+	List();
 
 
 	/*
