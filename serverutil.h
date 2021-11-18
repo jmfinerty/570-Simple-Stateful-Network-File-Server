@@ -6,7 +6,8 @@
 typedef int bool;
 
 
-#define LIST_DELIM "\n"
+#define LIST_DELIM      "\n"
+#define OUT_MSG_BUF_LEN 1024
 
 
 bool is_valid_file_descriptor();

@@ -115,7 +115,7 @@ read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 
 write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
-	char out_msg[1024];
+	char out_msg[OUT_MSG_BUF_LEN];
 
 	initialize_virtual_disk();
 
@@ -180,7 +180,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 list_output*
 list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 	static list_output result;
-	char out_msg[2048];
+	char out_msg[OUT_MSG_BUF_LEN];
 	char* user_name = argp->user_name;
 
 	initialize_virtual_disk();
@@ -219,11 +219,21 @@ delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 }
 
 
-close_output*
-close_file_1_svc(close_input* argp, struct svc_req* rqstp) {
+close_output* close_file_1_svc(close_input* argp, struct svc_req* rqstp) {
 	static close_output result;
+	char out_msg[OUT_MSG_BUF_LEN];
 
+	int file_descriptor = argp->fd;
+	if (!is_valid_file_descriptor(file_descriptor))
+		sprintf(out_msg, "CLOSE: File descriptor (%d) is not open.", file_descriptor);
+	else {
+		drop_entry_from_file_table(file_descriptor);
+		sprintf(out_msg, "CLOSE: File descriptor (%d) closed.", file_descriptor);
+	}
 
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
 
 	return &result;
 }
