@@ -190,10 +190,12 @@ list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 	else {
 		int user_index_in_userblocks = get_usersblocks_index_of_user_name(user_name);
 		if (get_num_user_files_in_usersblocks(user_index_in_userblocks) > 0) {
-			strcpy(out_msg, "LIST: ");
+			strcpy(out_msg, "LIST\n");
 			for (int file = 0; file < MAX_USER_FILES; file++)
-				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0)
+				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0) {
 					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
+					strcat(out_msg, LIST_DELIM);
+				}
 		} else
 			sprintf(out_msg, "ERROR: No files found in user (%s) directory.", user_name);
 	}

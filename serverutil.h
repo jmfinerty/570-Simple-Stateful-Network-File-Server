@@ -6,6 +6,9 @@
 typedef int bool;
 
 
+#define LIST_DELIM "\n"
+
+
 bool is_valid_file_descriptor();
 bool is_valid_user_name();
 bool is_valid_file_name();
