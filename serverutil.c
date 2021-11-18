@@ -14,8 +14,8 @@ int get_filetable_index_of_file_descriptor(int file_descriptor) {
 
 int get_filetable_index_of_file_name(char* user_name, char* file_name) {
 	for (int entry = 0; entry < MAX_FT_SIZE; entry++)
-        if strcmp((user_name, filetable->entries[entry].ownerUserName) == 0)
-		    if (strcmp((file_name, filetable->entries[entry].fileName)) == 0)
+        if (strcmp(user_name, filetable->entries[entry].ownerUserName) == 0)
+		    if (strcmp(file_name, filetable->entries[entry].fileName) == 0)
 			    return entry;
 	return -1;
 }

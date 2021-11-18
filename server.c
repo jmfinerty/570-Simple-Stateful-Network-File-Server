@@ -221,8 +221,26 @@ delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 	int file_index_in_filetable = get_filetable_index_of_file_name(user_name, file_name);
 	if (file_index_in_filetable != -1)
 		drop_entry_from_file_table(filetable->entries[file_index_in_filetable].fileDescriptor);
-	else
-		sprintf(out_msg, "ERROR: File (%s) does not exist.", file_name);
+	//else
+	//	sprintf(out_msg, "ERROR: File (%s) does not exist.", file_name);
+
+	// Now delete from vdisk
+	initialize_virtual_disk();
+	if (!is_valid_user_name(user_name))
+		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(user_name), file_name))
+		sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
+	else {
+		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+		drop_file_from_vdisk(user_index_in_usersblocks, file_index_in_usersblocks);
+		write_update_to_vdisk();
+		sprintf(out_msg, "DELETE: File (%s) deleted.", file_name);
+	}
+
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
 
 	return &result;
 }
