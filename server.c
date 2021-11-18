@@ -180,8 +180,27 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 list_output*
 list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 	static list_output result;
+	char out_msg[2048];
+	char* user_name = argp->user_name;
 
+	initialize_virtual_disk();
 
+	if (!is_valid_user_name(user_name))
+		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+	else {
+		int user_index_in_userblocks = get_usersblocks_index_of_user_name(user_name);
+		if (get_num_user_files_in_usersblocks(user_index_in_userblocks) > 0) {
+			strcpy(out_msg, "LIST: ");
+			for (int file = 0; file < MAX_USER_FILES; file++)
+				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0)
+					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
+		} else
+			sprintf(out_msg, "ERROR: No files found in user (%s) directory.", user_name);
+	}
+
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
 
 	return &result;
 }
