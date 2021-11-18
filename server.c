@@ -1,5 +1,4 @@
 #include "ssnfs.h"
-#include "server.h"
 #include "diskutil.h"
 #include "serverutil.h"
 
