@@ -31,7 +31,7 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 			// There is room to add them.
 			if (num_users_in_usersblocks < MAX_NUM_USERS) {
 				add_user_to_usersblocks(user_name);
-				add_file_to_usersblocks(user_name, file_name);
+				add_file_to_usersblocks(user_index_in_usersblocks, file_name);
 				write_update_to_filetable();
 				result.fd = add_entry_to_file_table(user_name, file_name);
 			}
