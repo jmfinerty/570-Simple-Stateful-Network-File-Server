@@ -8,6 +8,8 @@
 
 CLIENT *clnt;
 
+char* user_name;
+
 
 void ssnfsprog_1(char* host) {
 	clnt = clnt_create(host, SSNFSPROG, SSNFSVER, "tcp");
@@ -79,10 +81,13 @@ void List() {
 	list_output* result_4;
 	list_input list_files_1_arg;
 
+	strcpy(list_files_1_arg.user_name, user_name);
 	result_4 = list_files_1(&list_files_1_arg, clnt);
 	if (result_4 == (list_output*) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
+
+	printf("%s\n", result_4->out_msg.out_msg_val);
 }
 
 
@@ -107,6 +112,13 @@ int main (int argc, char *argv[]) {
 	host = argv[1];
 	ssnfsprog_1(host);
 
+	user_name = getpwuid(getuid())->pw_name; // given in assignment spec
+
+
+	// Testing script
+
+
+	// Opening a new file to an empty vdisk
 	int fd=Open("myfile");
 	printf("File descriptor returnd inside main() is:%d\n",  fd);
 
