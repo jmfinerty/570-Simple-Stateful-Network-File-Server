@@ -6,41 +6,77 @@
 
 open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	static open_output result;
+
 	initialize_virtual_disk();
 
 	char* user_name = argp->user_name;
 	char* file_name = argp->file_name;
 
+	result.fd = -1;
+
+	// Does file exist already?
 	int file_index_in_filetable = get_filetable_index_of_user_file(user_name, file_name);
 
-	if (file_index_in_filetable == -1) { // file does not exist yet for user
+	// File does not exist already
+	if (file_index_in_filetable == -1) {
 
+		// Does user exist already?
 		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
-		if (user_index_in_usersblocks == -1) { // user does not exist yet
-			// is there room for user? 
-				// if no, error
-				// if yes, add user...
-		} else { // user exists
-			int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
-			if (file_index_in_usersblocks == -1) { // file doesnt exist in table
-				// is there room for more files?
-				int num_user_files_in_userblocks = get_num_user_files_in_usersblocks(user_index_in_usersblocks);
-				if (num_user_files_in_userblocks < MAX_USER_FILES) {
-					// room for more files
-					// add file
-				} else {
-					// no room
-				}
 
-			} else { // file exists
-				// add to file table
+		// User does not exist already
+		if (user_index_in_usersblocks == -1) {
+
+			// User doesn't exist, is there room to add them?
+			int num_users_in_usersblocks = get_num_users_in_usersblocks();
+
+			// There is room to add them.
+			if (num_users_in_usersblocks < MAX_NUM_USERS) {
+				add_user_to_usersblocks(user_name);
+				add_file_to_usersblocks(user_name, file_name);
+				write_update_to_filetable();
+				result.fd = add_entry_to_file_table(user_name, file_name);
 			}
 
-			
-			
+			// There is not room to add them
+			else {
+				// cant do anything, return -1
+			}
+
+		// User exists already
+		} else {
+
+			// Does the file exist in usersblocks?
+			int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+
+			// File does not exist in usersblocks
+			if (file_index_in_usersblocks == -1) {
+
+				// Is there room to add it?
+				int num_user_files_in_userblocks = get_num_user_files_in_usersblocks(user_index_in_usersblocks);
+
+				// There is room to add it
+				if (num_user_files_in_userblocks < MAX_USER_FILES) {
+					add_file_to_usersblocks(user_index_in_usersblocks, file_name);
+					write_update_to_filetable();
+					result.fd = add_entry_to_file_table(user_name, file_name);
+				}
+
+				// There is not room to add it
+				else {
+					// cant do anything, return -1
+				}
+			}
+
+			// File exists in usersblocks
+			else {
+				result.fd = add_entry_to_file_table(user_name, file_name);
+			}
+
 		}
-	} else { // file index != -1
-		//todo: set file descriptor on result, return
+
+	// File exists already
+	} else {
+		result.fd = filetable->entries[file_index_in_filetable].fileDescriptor;
 	}
 
 	return &result;
@@ -132,7 +168,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 			sprintf(out_msg, "WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
 		}
 	}
-	
+
 	result.out_msg.out_msg_len = strlen(out_msg);
 	result.out_msg.out_msg_val = malloc(strlen(out_msg));
 	strcpy(result.out_msg.out_msg_val, out_msg);
