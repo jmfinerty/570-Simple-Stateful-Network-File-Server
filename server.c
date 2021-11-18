@@ -33,7 +33,7 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 				add_user_to_usersblocks(user_name);
 				user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
 				add_file_to_usersblocks(user_index_in_usersblocks, file_name);
-				write_update_to_filetable();
+				write_update_to_vdisk();
 				result.fd = add_entry_to_file_table(user_name, file_name);
 			}
 
@@ -57,7 +57,7 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 				// There is room to add it
 				if (num_user_files_in_userblocks < MAX_USER_FILES) {
 					add_file_to_usersblocks(user_index_in_usersblocks, file_name);
-					write_update_to_filetable();
+					write_update_to_vdisk();
 					result.fd = add_entry_to_file_table(user_name, file_name);
 				}
 
