@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "diskutil.h"
 #include "serverutil.h"
 
