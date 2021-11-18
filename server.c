@@ -103,11 +103,70 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 */
 
 
-read_output*
-read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
+read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	static read_output result;
+	char out_msg[OUT_MSG_BUF_LEN];
+	int file_descriptor = argp->fd;
+	char* user_name = argp->user_name;
 
+	initialize_virtual_disk();
 
+	// Does this file exist?
+	if (!is_valid_file_descriptor(file_descriptor))
+		sprintf(out_msg, "ERROR: File descriptor (%d) unknown.", file_descriptor);
+	else if (!is_valid_user_name(user_name))
+		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+	else {
+		int file_index_in_filetable = get_filetable_index_of_file_descriptor(file_descriptor);
+		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		char* file_name = filetable->entries[file_index_in_filetable].fileName;
+		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+
+		if (!is_valid_file_name(user_index_in_usersblocks, file_name))
+			sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
+		else {
+			int bytes_to_read = argp->numbytes;
+			char out_data[bytes_to_read+1];
+			int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
+			int new_pos = old_pos + bytes_to_read;
+
+			if (new_pos > MAX_POINTER_POS)
+				sprintf(out_msg, "ERROR: Cannot write to (%s) past EOF.", file_name);
+			else {
+				int block_index_in_usersblocks = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file
+				int pos_in_block_in_usersblocks = old_pos % BLOCK_SIZE; // byte 1, 2, 3... within block 1, 2, 3...
+				int pos_of_block_in_blocks;
+				if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
+					block_index_in_usersblocks += 1;
+					pos_in_block_in_usersblocks = 0;
+				}
+
+				int byte_index_in_buffer = 0;
+				while (byte_index_in_buffer < bytes_to_read) {
+					if (block_index_in_usersblocks > FILE_SIZE) {
+						break;
+					}
+					if (block_index_in_usersblocks < FILE_SIZE) {
+						pos_of_block_in_blocks = ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks];
+						out_data[block_index_in_usersblocks] = blocks[pos_of_block_in_blocks].data[pos_in_block_in_usersblocks];
+						pos_in_block_in_usersblocks += 1;
+					}
+					if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
+						block_index_in_usersblocks += 1;
+						pos_in_block_in_usersblocks = 0;
+					}
+					byte_index_in_buffer += 1;
+				}
+				out_data[byte_index_in_buffer] = '\0'; // terminate
+				strcpy(out_msg, out_data);
+				write_update_to_filetable(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
+			}
+		}
+	}
+
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
 
 	return &result;
 }
