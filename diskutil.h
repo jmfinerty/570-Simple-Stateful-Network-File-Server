@@ -65,6 +65,9 @@ int _initialize_users_and_blocks();
 int _read_update_from_vdisk();
 int write_update_to_vdisk();
 int write_update_to_filetable();
+int add_entry_to_file_table();
+int add_user_to_usersblocks();
+int add_file_to_usersblocks();
 int initialize_virtual_disk();
 
 

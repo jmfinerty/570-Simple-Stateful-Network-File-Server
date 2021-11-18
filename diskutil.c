@@ -35,6 +35,58 @@ int write_update_to_filetable(char* user_name, char* file_name, int file_descrip
 }
 
 
+int file_descriptors_pos = 9;
+int add_entry_to_file_table(char* user_name, char* file_name) {
+    for (int entry = 0; entry < MAX_FT_SIZE; entry++)
+        if (strcmp(filetable->entries[entry].ownerUserName, DEFAULT_USER_NAME) == 0)
+            if (strcmp(filetable->entries[entry].fileName, DEFAULT_FILE_NAME) == 0) {
+                file_descriptors_pos += 1;
+                filetable->entries[entry].fileDescriptor = file_descriptors_pos;
+                filetable->entries[entry].filePointerPos = 0;
+                strcpy(filetable->entries[entry].fileName, file_name);
+                strcpy(filetable->entries[entry].ownerUserName, user_name);
+                return file_descriptors_pos;
+            }
+    return -1;
+}
+
+
+int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
+    for (int file = 0; file < MAX_USER_FILES; file++)
+        if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) == 0) {
+            strcpy(ub.users[user_index_in_usersblocks].files[file].name, file_name);
+            // assign needed blocks in usersblocks to this
+            int empty_block_index = 0;
+            while (ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] != 0)
+                empty_block_index += 1;
+
+            int assigned = 0;
+            for (int block = 1; block < MAX_NUM_BLOCKS; block++) {
+                if (assigned >= FILE_SIZE)
+                    break;
+                if (ub.blocks[block] == '0') { //unassigned
+                    ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] = block; // assign
+                    empty_block_index += 1;
+                    ub.blocks[block] = '1'; // mark as assigned
+                    assigned += 1;
+                }
+            }
+            return file;
+        }
+    return -1;
+}
+
+
+int add_user_to_usersblocks(char* user_name) {
+    for (int user = 0; user < MAX_NUM_USERS; user++)
+        if (strcmp(DEFAULT_USER_NAME, ub.users[user].name) == 0) {
+            strcpy(user_name, ub.users[user].name);
+            return user;
+        }
+    return -1; // no empty slots for user
+}
+
+
 // In a UsersBlocks,
 // copies 0 into every block, DEFAULT_USER_NAME into every user's name,
 // DEFAULT_FILE_NAME into every file name, and 0 into every file's blocks
