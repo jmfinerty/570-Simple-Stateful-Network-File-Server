@@ -4,6 +4,7 @@
 // Disk
 #define VDISK_LOC       "vdisk"
 #define VDISK_DELIM     "\n"
+#define DELIM_BUF_SIZE  2
 #define VDISK_CAPACITY  16777216 // 16 mB
 #define BLOCK_SIZE      512      // bytes per block
 #define FILE_SIZE       64       // blocks per file
@@ -59,6 +60,7 @@ struct _UsersBlocks {
 extern FileTable* filetable;
 extern UsersBlocks ub;
 extern Block blocks[MAX_NUM_BLOCKS];
+
 
 FileTable* _initialize_file_table();
 int _initialize_users_and_blocks();

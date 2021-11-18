@@ -113,18 +113,30 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
 
 int _read_update_from_vdisk() {
     FILE* vdisk = fopen(VDISK_LOC, "r");
+    char delim_buf[DELIM_BUF_SIZE]; // HACK, but it works
 
+    fgets(ub.blocks, MAX_NUM_BLOCKS+1, vdisk);
+
+    fgets(delim_buf, DELIM_BUF_SIZE, vdisk);
     for (int user = 0; user < MAX_NUM_USERS; user++) {
         fgets(ub.users[user].name, MAX_USER_NAME_LEN, vdisk);
+        ub.users[user].name[strcspn(ub.users[user].name, "\n")] = 0; // https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
+        //for (int uu = 0; uu < MAX_NUM_USERS; uu++){printf("...%s...", ub.users[uu].name); fflush(stdout);}
         for (int file = 0; file < MAX_USER_FILES; file++) {
             fgets(ub.users[user].files[file].name, MAX_FILE_NAME_LEN, vdisk);
-            for (int block = 0; block < FILE_SIZE; block++)
+            ub.users[user].files[file].name[strcspn(ub.users[user].files[file].name, "\n")] = 0;
+
+            for (int block = 0; block < FILE_SIZE; block++) {
                 fscanf(vdisk, "%d ", &ub.users[user].files[file].blocks[block]);
+            }
         }
     }
 
-    for (int block = 0; block < MAX_NUM_BLOCKS; block++)
-        fgets(blocks[block].data, BLOCK_SIZE, vdisk);
+    fgets(delim_buf, DELIM_BUF_SIZE, vdisk);
+    for (int block = 0; block < MAX_NUM_BLOCKS; block++) {
+        fgets(blocks[block].data, BLOCK_SIZE+1, vdisk);
+        fgets(delim_buf, DELIM_BUF_SIZE, vdisk);
+    }
 
     fclose(vdisk);
     return 0;
