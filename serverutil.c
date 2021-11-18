@@ -5,9 +5,18 @@
 
 
 int get_filetable_index_of_file_descriptor(int file_descriptor) {
-	for (int file = 0; file < MAX_FT_SIZE; file++)
-		if (filetable->entries[file].fileDescriptor == file_descriptor)
-			return file;
+	for (int entry = 0; entry < MAX_FT_SIZE; entry++)
+		if (filetable->entries[entry].fileDescriptor == file_descriptor)
+			return entry;
+	return -1;
+}
+
+
+int get_filetable_index_of_file_name(char* user_name, char* file_name) {
+	for (int entry = 0; entry < MAX_FT_SIZE; entry++)
+        if strcmp((user_name, filetable->entries[entry].ownerUserName) == 0)
+		    if (strcmp((file_name, filetable->entries[entry].fileName)) == 0)
+			    return entry;
 	return -1;
 }
 

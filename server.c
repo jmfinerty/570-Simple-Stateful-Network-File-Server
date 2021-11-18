@@ -209,11 +209,19 @@ list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 }
 
 
-delete_output*
-delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
+delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 	static delete_output result;
+	char out_msg[OUT_MSG_BUF_LEN];
 
+	char* user_name = argp->user_name;
+	char* file_name = argp->file_name;
 
+	// Delete from file table
+	int file_index_in_filetable = get_filetable_index_of_file_name(user_name, file_name);
+	if (file_index_in_filetable != -1)
+		drop_entry_from_file_table(filetable->entries[file_index_in_filetable].fileDescriptor);
+	else
+		sprintf(out_msg, "ERROR: File (%s) does not exist.", file_name);
 
 	return &result;
 }
