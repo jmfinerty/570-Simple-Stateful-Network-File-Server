@@ -22,4 +22,4 @@ ssnfs.h:
 	rpcgen ssnfs.x
 
 clean :
-	rm  *.o *~ client server ssnfs_* ssnfs.h *.gch
+	rm  *.o *~ client server ssnfs_* ssnfs.h *.gch vdisk
