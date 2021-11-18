@@ -27,6 +27,7 @@ int Open(char* filename_to_open) {
 	strcpy(open_file_1_arg.user_name, getpwuid(getuid())->pw_name);
 	strcpy(open_file_1_arg.file_name, filename_to_open);
 
+	strcpy(open_file_1_arg.user_name, user_name);
   	result_1 = open_file_1(&open_file_1_arg, clnt);
 	if (result_1 == (open_output*) NULL) {
 		clnt_perror(clnt, "call failed");
@@ -128,6 +129,13 @@ int main (int argc, char *argv[]) {
 
 	// List files
 	List();
+
+	// Run with second username
+	strcpy(user_name, "john");
+	fd=Open("myfile2");
+	printf("File descriptor returnd inside main() is:%d\n",  fd);
+	List();
+
 
 	/*
 	int i,j;
