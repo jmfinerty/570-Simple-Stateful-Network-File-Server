@@ -52,9 +52,14 @@ int add_entry_to_file_table(char* user_name, char* file_name) {
 
 
 int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
-    for (int file = 0; file < MAX_USER_FILES; file++)
+
+    for (int file = 0; file < MAX_USER_FILES; file++) {
+
+
         if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) == 0) {
+
             strcpy(ub.users[user_index_in_usersblocks].files[file].name, file_name);
+
             // assign needed blocks in usersblocks to this
             int empty_block_index = 0;
             while (ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] != 0)
@@ -64,6 +69,7 @@ int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
             for (int block = 1; block < MAX_NUM_BLOCKS; block++) {
                 if (assigned >= FILE_SIZE)
                     break;
+
                 if (ub.blocks[block] == '0') { //unassigned
                     ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] = block; // assign
                     empty_block_index += 1;
@@ -73,6 +79,8 @@ int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
             }
             return file;
         }
+    }
+
     return -1;
 }
 
@@ -80,7 +88,7 @@ int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
 int add_user_to_usersblocks(char* user_name) {
     for (int user = 0; user < MAX_NUM_USERS; user++)
         if (strcmp(DEFAULT_USER_NAME, ub.users[user].name) == 0) {
-            strcpy(user_name, ub.users[user].name);
+            strcpy(ub.users[user].name, user_name);
             return user;
         }
     return -1; // no empty slots for user
