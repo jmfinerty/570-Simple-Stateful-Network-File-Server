@@ -70,6 +70,7 @@ int write_update_to_vdisk();
 int write_update_to_filetable();
 int add_entry_to_file_table();
 int drop_entry_from_file_table();
+int drop_file_from_vdisk();
 int add_user_to_usersblocks();
 int add_file_to_usersblocks();
 int initialize_virtual_disk();

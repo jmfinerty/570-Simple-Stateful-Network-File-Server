@@ -66,6 +66,17 @@ int drop_entry_from_file_table(int file_descriptor) {
 }
 
 
+int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersblocks) {
+    strcpy(ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].name, DEFAULT_FILE_NAME);
+    for (int block = 0; block < FILE_SIZE; block++)
+        if (ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] != 0) { // block is allocated
+            ub.blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]] = '0'; // set it to unallocated
+            memset(blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]].data, ' ', BLOCK_SIZE);
+            ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] = 0;
+        }
+}
+
+
 int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
     for (int file = 0; file < MAX_USER_FILES; file++)
         if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) == 0) {
