@@ -81,7 +81,7 @@ void Read(int fd, char* buffer, int num_bytes_to_read) {
 		clnt_perror(clnt, "call failed");
 	}
 
-	printf(":%s\n", result_2->out_msg.out_msg_val);
+	printf("%s\n", result_2->out_msg.out_msg_val);
 
 }
 
@@ -167,8 +167,46 @@ int main (int argc, char *argv[]) {
 	printf("File descriptor closed inside main() is:%d\n",  fd);
 	List();*/
 
+
+
+
+	// TODO:
+	/*
+	one of read or write is broken, not sure which
+	if I run this, read will be wrong
+	if I run it again, it will be right
+	repeated runs are also right
+	I cant tell if the inside of vdisk is correct
+
+	Test script from assignment spec (uncommented below) prints this.
+	Each print has 10 more trailing whitespace chars than the last
+	Each line begins with some weird symbols
+
+	���This is a 
+	���This is a test      
+	���This is a test                
+	���This is a test                          
+	���This is a test                                    Q�
+	���This is a test                                              
+	���This is a test                                                        
+	���This is a test                                                                  
+	���This is a test                                                                            
+	���This is a test                                                                                      
+	���This is a test                                                                                                
+	���This is a test                                                                                                          
+	���This is a test                                                                                                                    ��
+	���This is a test                                                                                                                              
+	���This is a test                                                                                                                                        
+	���This is a test                                                                                                                                                  
+	���This is a test                                                                                                                                                            
+	���This is a test                                                                                                                                                                      
+	���This is a test                                                                                                                                                                                
+	���This is a test                                                                                                                                                                                          
+
+	*/
+
 	// Re-opening it
-	fd = Open("myfile2");
+	/*fd = Open("myfile2");
 	printf("File descriptor returnd inside main() is:%d\n",  fd);
 	List();
 
@@ -181,6 +219,23 @@ int main (int argc, char *argv[]) {
 	Read(fd, buf, 10);
 
 	//Delete("myfile2");
+	List();*/
+
+	int i,j;
+	int fd1,fd2;
+	char buffer[100];
+	fd1=Open("File1"); // opens the file "File1"
+	for (i=0; i< 20;i++){
+	Write(fd1, "This is a test program for cs570 assignment 4", 15);
+	}
+	Close(fd1);
+	fd2=Open("File1");
+	for (j=0; j< 20;j++){
+	Read(fd2, buffer, 10);
+	printf("%s\n",buffer);
+	}
+	Close(fd2);
+	Delete("File1");
 	List();
 
 
