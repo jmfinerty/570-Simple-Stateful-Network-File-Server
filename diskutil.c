@@ -72,8 +72,10 @@ int _read_update_from_vdisk() {
         }
     }
 
-    // HACK: Read in VDISK_DELIM character at end of users/file information
-    fgets(delim_buf, DELIM_BUF_SIZE, vdisk);
+    // HACK
+    // When this is anything but 1, the first character of the first file will always get cut off
+    fgets(delim_buf, 1, vdisk);
+    //fgets(delim_buf, 1 DELIM_BUF_SIZE, vdisk);
 
     // Read in the block information
     // starts at end of users/file information
