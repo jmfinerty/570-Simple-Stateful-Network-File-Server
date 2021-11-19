@@ -231,6 +231,10 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 		result.fd = filetable->entries[file_index_in_filetable].fileDescriptor;
 	}
 
+	result.out_msg.out_msg_len = strlen(file_name);
+	result.out_msg.out_msg_val = malloc(strlen(file_name));
+	strcpy(result.out_msg.out_msg_val, file_name);
+
 	return &result;
 }
 
