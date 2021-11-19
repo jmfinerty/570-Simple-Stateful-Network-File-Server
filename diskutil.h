@@ -2,62 +2,61 @@
 #define DISKUTIL_H
 
 // Disk
-#define BLOCK_SIZE      512      // bytes per block
-#define DELIM_BUF_SIZE  2
-#define FILE_SIZE       64       // blocks per file
-#define VDISK_CAPACITY  16777216 // 16 mB
-#define VDISK_DELIM     "\n"
-#define VDISK_LOC       "vdisk"
+#define BLOCK_SIZE      512      // bytes per block, DEFINED IN ASSIGNMENT SPEC
+#define DELIM_BUF_SIZE  2        // size buffer to read \ns into when reading vdisk in
+#define FILE_SIZE       64       // blocks per file, DEFINED IN ASSIGNMENT SPEC
+#define VDISK_CAPACITY  16777216 // size of virtual disk in bytes, 16mB, DEFINED IN ASSIGNMENT SPEC
+#define VDISK_DELIM     "\n"     // delimiter to seperate lines in vdisk -- \n for fgets
+#define VDISK_LOC       "vdisk"  // name of virtual disk file
 
 // Files
-#define DEFAULT_FILE_NAME "SOMEFILE"
+#define DEFAULT_FILE_NAME "SOMEFILE" // name to assign to unallocated file space
 #define INIT_FILE_DESCRIP 9          // will start descriptors at 10 (9+=1)
-#define MAX_FILE_NAME_LEN 20
+#define MAX_FILE_NAME_LEN 20         // longest name a file can have -- FROM SSNFS.H, don't change
 
 // Users
-#define DEFAULT_USER_NAME "SOMEUSER"
-#define MAX_NUM_USERS     16
-#define MAX_USER_NAME_LEN 15
+#define DEFAULT_USER_NAME "SOMEUSER" // name to assign unallocated space for users
+#define MAX_NUM_USERS     16         // maximum number of users. should be power of 2 for division
+#define MAX_USER_NAME_LEN 15         // maximum length of username, DEFINED IN ASSIGNMENT SPEC
 
 // Derived
-#define MAX_NUM_BLOCKS  (VDISK_CAPACITY / BLOCK_SIZE)
-#define MAX_USER_BLOCKS (MAX_NUM_BLOCKS / MAX_NUM_USERS)
-#define MAX_USER_FILES  (MAX_USER_BLOCKS / FILE_SIZE)
-#define MAX_FT_SIZE     (MAX_USER_FILES * MAX_NUM_USERS)
-#define MAX_POINTER_POS (FILE_SIZE * BLOCK_SIZE)
+#define MAX_NUM_BLOCKS  (VDISK_CAPACITY / BLOCK_SIZE)    // maximum number of possible blocks with given disk space
+#define MAX_USER_BLOCKS (MAX_NUM_BLOCKS / MAX_NUM_USERS) // maximum number of blocks a user can have if blocks evenly distributed between users
+#define MAX_USER_FILES  (MAX_USER_BLOCKS / FILE_SIZE)    // maximum number of files a user can have if blocks evenly distributed between users
+#define MAX_FT_SIZE     (MAX_USER_FILES * MAX_NUM_USERS) // maximum number of files that can exist in filetable
+#define MAX_POINTER_POS (FILE_SIZE * BLOCK_SIZE)         // maximum position file pointer can have
 
 
-struct _Block {
-    char data[BLOCK_SIZE+1]; // +1 must be null terminated for fgets
+struct _Block {                     // stores 1 block and data in block
+    char data[BLOCK_SIZE+1];        // +1 because must be null terminated for fgets
 }; typedef struct _Block Block;
 
 
-struct _FileTableEntry {
-    char ownerUserName[MAX_USER_NAME_LEN];
-    char fileName[MAX_FILE_NAME_LEN];
-    int  fileDescriptor;
-    int  filePointerPos;
+struct _FileTableEntry {                          // stores an entry in the file table
+    char ownerUserName[MAX_USER_NAME_LEN];        // name of user that file belongs to
+    char fileName[MAX_FILE_NAME_LEN];             // name of the file
+    int  fileDescriptor;                          // file descriptor value for file
+    int  filePointerPos;                          // position of pointer in file
 }; typedef struct _FileTableEntry FileTableEntry;
 
-struct _FileTable {
+struct _FileTable {                      // file table, just a list of FileTableEntries
     FileTableEntry entries[MAX_FT_SIZE];
 }; typedef struct _FileTable FileTable;
 
 
-struct _FileInfo {
-    char name[MAX_FILE_NAME_LEN];
-    int  blocks[FILE_SIZE];
+struct _FileInfo {                    // stores information about a file
+    char name[MAX_FILE_NAME_LEN];     // stores name of file
+    int  blocks[FILE_SIZE];           // stores the indices of a file's blocks in the Blocks struct
 }; typedef struct _FileInfo FileInfo;
 
-
-struct _User {
-    char name[MAX_USER_NAME_LEN];
-    FileInfo files[MAX_USER_FILES];
+struct _User {                      // stores information about a user
+    char name[MAX_USER_NAME_LEN];   // stores name of user
+    FileInfo files[MAX_USER_FILES]; // stores information about each of users files
 }; typedef struct _User User;
 
-struct _UsersBlocks {
-    char blocks[MAX_NUM_BLOCKS+1];
-    User users[MAX_NUM_USERS];
+struct _UsersBlocks {                       // stores information about users and the blocks they own
+    char blocks[MAX_NUM_BLOCKS+1];          // stores if block at index is allocated or not (1/0). +1 because null term. for fgets
+    User users[MAX_NUM_USERS];              // stores information about each user
 }; typedef struct _UsersBlocks UsersBlocks;
 
 
@@ -66,6 +65,7 @@ extern UsersBlocks ub;
 extern Block blocks[MAX_NUM_BLOCKS];
 
 
+// see comments in diskutil.c
 FileTable* _initialize_file_table();
 int _initialize_users_and_blocks();
 int _read_update_from_vdisk();
@@ -75,7 +75,7 @@ int add_user_to_usersblocks();
 int drop_entry_from_file_table();
 int drop_file_from_vdisk();
 int write_update_to_vdisk();
-int write_update_to_filetable();
+int write_update_to_file_pointer_pos();
 
 int load_or_initialize_virtual_disk();
 
