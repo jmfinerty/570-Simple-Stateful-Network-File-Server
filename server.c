@@ -271,9 +271,6 @@ open_file_1_svc(open_input *argp, struct svc_req *rqstp)
  Returns appropriate error message if trying to read past the
  end of file, file descriptor passed was not correct, etc.."
 */
-// NOTE: Assignment spec states I must use a variable length buffer.
-//  This is not possible in c...
-//  At least not whatever version my virtual machine has.
 read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	static read_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
@@ -368,6 +365,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 
 	if (read) {
 		out_data[last_buffer_index] = '\0'; // null terminate string
+		result.buffer.buffer_len = strlen(out_data);
 		result.buffer.buffer_val = malloc(strlen(out_data));
 		strcpy(result.buffer.buffer_val, out_data);
 	}
@@ -387,9 +385,6 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
  Uses variable length buffer.
  Returns appropriate error message if write fails."
 */
-// NOTE: Assignment spec states I must use a variable length buffer.
-//  This is not possible in c...
-//  At least not whatever version my virtual machine has.
 write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
