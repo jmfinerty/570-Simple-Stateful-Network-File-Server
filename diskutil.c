@@ -226,6 +226,8 @@ int write_update_to_file_pointer_pos(char* user_name, char* file_name, int file_
 // file blocks: 1 2 3 4 5 6 7 8 9... 64
 // [repeat username - file blocks]
 // [blocks bytes]
+// I feel like this is an intuitive format. It is basically Index->Directories->Files->FileContentInfo, then actual info at bottom.
+// Sort of like file details and then actual file.
 int write_update_to_vdisk() {
 
     FILE* vdisk = fopen(VDISK_LOC, "w");
