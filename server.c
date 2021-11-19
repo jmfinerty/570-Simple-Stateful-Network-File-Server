@@ -38,7 +38,7 @@ delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 	//	sprintf(out_msg, "ERROR: File (%s) does not exist.", file_name);
 
 	// Now delete from vdisk
-	initialize_virtual_disk();
+	load_or_initialize_virtual_disk();
 	if (!is_valid_user_name(user_name))
 		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
 	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(user_name), file_name))
@@ -65,7 +65,7 @@ list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 	char out_msg[OUT_MSG_BUF_LEN];
 	char* user_name = argp->user_name;
 
-	initialize_virtual_disk();
+	load_or_initialize_virtual_disk();
 
 	if (!is_valid_user_name(user_name))
 		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
@@ -94,7 +94,7 @@ list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	static open_output result;
 
-	initialize_virtual_disk();
+	load_or_initialize_virtual_disk();
 
 	char* user_name = argp->user_name;
 	char* file_name = argp->file_name;
@@ -173,7 +173,7 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 /*
 open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	static open_output result;
-	initialize_virtual_disk();
+	load_or_initialize_virtual_disk();
 
 	result.fd = 20;
 	result.out_msg.out_msg_len = 10;
@@ -197,7 +197,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	int file_descriptor = argp->fd;
 	char* user_name = argp->user_name;
 
-	initialize_virtual_disk();
+	load_or_initialize_virtual_disk();
 
 	// Does this file exist?
 	if (!is_valid_file_descriptor(file_descriptor))
@@ -264,7 +264,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
-	initialize_virtual_disk();
+	load_or_initialize_virtual_disk();
 
 	if (!is_valid_file_descriptor(argp->fd))
 		sprintf(out_msg, "ERROR: File descriptor (%d) unknown.", argp->fd);

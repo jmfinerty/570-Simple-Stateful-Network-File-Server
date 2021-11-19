@@ -77,7 +77,7 @@ int drop_file_from_vdisk();
 int write_update_to_vdisk();
 int write_update_to_filetable();
 
-int initialize_virtual_disk();
+int load_or_initialize_virtual_disk();
 
 
 #endif /* DISKUTIL_H */
