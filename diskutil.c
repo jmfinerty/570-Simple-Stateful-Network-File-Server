@@ -78,8 +78,8 @@ int _read_update_from_vdisk() {
     // Read in the block information
     // starts at end of users/file information
     // ends at EOF
-    for (int block = 0; block < MAX_NUM_BLOCKS; block++) {
-        fgets(blocks[block].data, BLOCK_SIZE+1, vdisk);
+    for (int b = 0; b < MAX_NUM_BLOCKS; b++) {
+        fgets(blocks[b].data, BLOCK_SIZE+1, vdisk);
 
         // HACK: Read in VDISK_DELIM character at end of users/file information
         fgets(delim_buf, DELIM_BUF_SIZE, vdisk);
@@ -242,9 +242,11 @@ int write_update_to_vdisk() {
             fputs(ub.users[user].files[file].name, vdisk);
             fputs(VDISK_DELIM, vdisk);
 
-            for (int block = 0; block < FILE_SIZE; block++)
+            for (int block = 0; block < FILE_SIZE; block++) {
                 fprintf(vdisk, "%d ", ub.users[user].files[file].blocks[block]);
                 //fputs(ub.users[user].files[file].blocks[block], vdisk);
+            }
+
             fputs(VDISK_DELIM, vdisk);
         }
     }
