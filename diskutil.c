@@ -6,9 +6,9 @@
 #include "diskutil.h"
 
 
+Block blocks[MAX_NUM_BLOCKS];
 FileTable* filetable = NULL;
 UsersBlocks ub;
-Block blocks[MAX_NUM_BLOCKS];
 
 
 FileTable* _initialize_file_table() {
@@ -23,96 +23,6 @@ FileTable* _initialize_file_table() {
     }
 
     return table;
-}
-
-
-int write_update_to_filetable(char* user_name, char* file_name, int file_descriptor, int file_pointer_pos) {
-    for (int entry; entry < MAX_FT_SIZE; entry++)
-        if (strcmp(filetable->entries[entry].ownerUserName, user_name) == 0)
-            if (filetable->entries[entry].fileDescriptor == file_descriptor)
-                filetable->entries[entry].filePointerPos = file_pointer_pos;
-    return 0;
-}
-
-
-int file_descriptors_pos = INIT_FILE_DESCRIP;
-int add_entry_to_file_table(char* user_name, char* file_name) {
-    for (int entry = 0; entry < MAX_FT_SIZE; entry++)
-        if (strcmp(filetable->entries[entry].ownerUserName, DEFAULT_USER_NAME) == 0)
-            if (strcmp(filetable->entries[entry].fileName, DEFAULT_FILE_NAME) == 0) {
-                file_descriptors_pos += 1;
-                filetable->entries[entry].fileDescriptor = file_descriptors_pos;
-                filetable->entries[entry].filePointerPos = 0;
-                strcpy(filetable->entries[entry].fileName, file_name);
-                strcpy(filetable->entries[entry].ownerUserName, user_name);
-                return file_descriptors_pos;
-            }
-    return -1;
-}
-
-
-int drop_entry_from_file_table(int file_descriptor) {
-    for (int entry = 0; entry < MAX_FT_SIZE; entry++) {
-        if (filetable->entries[entry].fileDescriptor == file_descriptor) {
-            //file_descriptors_pos -= 1; // not sure if this matters? safer to keep commented
-            filetable->entries[entry].fileDescriptor = 0;
-            filetable->entries[entry].filePointerPos = 0;
-            strcpy(filetable->entries[entry].fileName, DEFAULT_FILE_NAME);
-            strcpy(filetable->entries[entry].ownerUserName, DEFAULT_USER_NAME);
-            return 0;
-        }
-    }
-    return 1;
-}
-
-
-int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersblocks) {
-    strcpy(ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].name, DEFAULT_FILE_NAME);
-    for (int block = 0; block < FILE_SIZE; block++)
-        if (ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] != 0) { // block is allocated
-            ub.blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]] = '0'; // set it to unallocated
-            memset(blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]].data, ' ', BLOCK_SIZE);
-            ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] = 0;
-        }
-}
-
-
-int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
-    for (int file = 0; file < MAX_USER_FILES; file++)
-        if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) == 0) {
-
-            strcpy(ub.users[user_index_in_usersblocks].files[file].name, file_name);
-
-            // assign needed blocks in usersblocks to this
-            int empty_block_index = 0;
-            while (ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] != 0)
-                empty_block_index += 1;
-
-            int assigned = 0;
-            for (int block = 1; block < MAX_NUM_BLOCKS; block++) {
-                if (assigned >= FILE_SIZE)
-                    break;
-
-                if (ub.blocks[block] == '0') { //unassigned
-                    ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] = block; // assign
-                    empty_block_index += 1;
-                    ub.blocks[block] = '1'; // mark as assigned
-                    assigned += 1;
-                }
-            }
-            return file;
-        }
-    return -1;
-}
-
-
-int add_user_to_usersblocks(char* user_name) {
-    for (int user = 0; user < MAX_NUM_USERS; user++)
-        if (strcmp(DEFAULT_USER_NAME, ub.users[user].name) == 0) {
-            strcpy(ub.users[user].name, user_name);
-            return user;
-        }
-    return -1; // no empty slots for user
 }
 
 
@@ -165,6 +75,96 @@ int _read_update_from_vdisk() {
     }
 
     fclose(vdisk);
+    return 0;
+}
+
+
+int file_descriptors_pos = INIT_FILE_DESCRIP;
+int add_entry_to_file_table(char* user_name, char* file_name) {
+    for (int entry = 0; entry < MAX_FT_SIZE; entry++)
+        if (strcmp(filetable->entries[entry].ownerUserName, DEFAULT_USER_NAME) == 0)
+            if (strcmp(filetable->entries[entry].fileName, DEFAULT_FILE_NAME) == 0) {
+                file_descriptors_pos += 1;
+                filetable->entries[entry].fileDescriptor = file_descriptors_pos;
+                filetable->entries[entry].filePointerPos = 0;
+                strcpy(filetable->entries[entry].fileName, file_name);
+                strcpy(filetable->entries[entry].ownerUserName, user_name);
+                return file_descriptors_pos;
+            }
+    return -1;
+}
+
+
+int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
+    for (int file = 0; file < MAX_USER_FILES; file++)
+        if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) == 0) {
+
+            strcpy(ub.users[user_index_in_usersblocks].files[file].name, file_name);
+
+            // assign needed blocks in usersblocks to this
+            int empty_block_index = 0;
+            while (ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] != 0)
+                empty_block_index += 1;
+
+            int assigned = 0;
+            for (int block = 1; block < MAX_NUM_BLOCKS; block++) {
+                if (assigned >= FILE_SIZE)
+                    break;
+
+                if (ub.blocks[block] == '0') { //unassigned
+                    ub.users[user_index_in_usersblocks].files[file].blocks[empty_block_index] = block; // assign
+                    empty_block_index += 1;
+                    ub.blocks[block] = '1'; // mark as assigned
+                    assigned += 1;
+                }
+            }
+            return file;
+        }
+    return -1;
+}
+
+
+int add_user_to_usersblocks(char* user_name) {
+    for (int user = 0; user < MAX_NUM_USERS; user++)
+        if (strcmp(DEFAULT_USER_NAME, ub.users[user].name) == 0) {
+            strcpy(ub.users[user].name, user_name);
+            return user;
+        }
+    return -1; // no empty slots for user
+}
+
+
+int drop_entry_from_file_table(int file_descriptor) {
+    for (int entry = 0; entry < MAX_FT_SIZE; entry++) {
+        if (filetable->entries[entry].fileDescriptor == file_descriptor) {
+            //file_descriptors_pos -= 1; // not sure if this matters? safer to keep commented
+            filetable->entries[entry].fileDescriptor = 0;
+            filetable->entries[entry].filePointerPos = 0;
+            strcpy(filetable->entries[entry].fileName, DEFAULT_FILE_NAME);
+            strcpy(filetable->entries[entry].ownerUserName, DEFAULT_USER_NAME);
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersblocks) {
+    strcpy(ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].name, DEFAULT_FILE_NAME);
+    for (int block = 0; block < FILE_SIZE; block++)
+        if (ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] != 0) { // block is allocated
+            ub.blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]] = '0'; // set it to unallocated
+            memset(blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]].data, ' ', BLOCK_SIZE);
+            ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] = 0;
+        }
+}
+
+
+int write_update_to_filetable(char* user_name, char* file_name, int file_descriptor, int file_pointer_pos) {
+    for (int entry; entry < MAX_FT_SIZE; entry++)
+        if (strcmp(filetable->entries[entry].ownerUserName, user_name) == 0)
+            if (filetable->entries[entry].fileDescriptor == file_descriptor)
+                filetable->entries[entry].filePointerPos = file_pointer_pos;
     return 0;
 }
 

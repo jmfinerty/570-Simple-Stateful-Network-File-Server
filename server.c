@@ -3,6 +3,94 @@
 #include "serverutil.h"
 
 
+close_output* close_file_1_svc(close_input* argp, struct svc_req* rqstp) {
+	static close_output result;
+	char out_msg[OUT_MSG_BUF_LEN];
+
+	int file_descriptor = argp->fd;
+	if (!is_valid_file_descriptor(file_descriptor))
+		sprintf(out_msg, "CLOSE: File descriptor (%d) is not open.", file_descriptor);
+	else {
+		drop_entry_from_file_table(file_descriptor);
+		sprintf(out_msg, "CLOSE: File descriptor (%d) closed.", file_descriptor);
+	}
+
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	return &result;
+}
+
+
+delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
+	static delete_output result;
+	char out_msg[OUT_MSG_BUF_LEN];
+
+	char* user_name = argp->user_name;
+	char* file_name = argp->file_name;
+
+	// Delete from file table
+	int file_index_in_filetable = get_filetable_index_of_file_name(user_name, file_name);
+	if (file_index_in_filetable != -1)
+		drop_entry_from_file_table(filetable->entries[file_index_in_filetable].fileDescriptor);
+	//else
+	//	sprintf(out_msg, "ERROR: File (%s) does not exist.", file_name);
+
+	// Now delete from vdisk
+	initialize_virtual_disk();
+	if (!is_valid_user_name(user_name))
+		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(user_name), file_name))
+		sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
+	else {
+		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+		drop_file_from_vdisk(user_index_in_usersblocks, file_index_in_usersblocks);
+		write_update_to_vdisk();
+		sprintf(out_msg, "DELETE: File (%s) deleted.", file_name);
+	}
+
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	return &result;
+}
+
+
+list_output*
+list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
+	static list_output result;
+	char out_msg[OUT_MSG_BUF_LEN];
+	char* user_name = argp->user_name;
+
+	initialize_virtual_disk();
+
+	if (!is_valid_user_name(user_name))
+		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+	else {
+		int user_index_in_userblocks = get_usersblocks_index_of_user_name(user_name);
+		if (get_num_user_files_in_usersblocks(user_index_in_userblocks) > 0) {
+			strcpy(out_msg, "LIST");
+			strcat(out_msg, LIST_DELIM);
+			for (int file = 0; file < MAX_USER_FILES; file++)
+				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0) {
+					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
+					strcat(out_msg, LIST_DELIM);
+				}
+		} else
+			sprintf(out_msg, "ERROR: No files found in user (%s) directory.", user_name);
+	}
+
+	result.out_msg.out_msg_len = strlen(out_msg);
+	result.out_msg.out_msg_val = malloc(strlen(out_msg));
+	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	return &result;
+}
+
+
 open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	static open_output result;
 
@@ -229,94 +317,6 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 			write_update_to_filetable(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
 			sprintf(out_msg, "WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
 		}
-	}
-
-	result.out_msg.out_msg_len = strlen(out_msg);
-	result.out_msg.out_msg_val = malloc(strlen(out_msg));
-	strcpy(result.out_msg.out_msg_val, out_msg);
-
-	return &result;
-}
-
-
-list_output*
-list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
-	static list_output result;
-	char out_msg[OUT_MSG_BUF_LEN];
-	char* user_name = argp->user_name;
-
-	initialize_virtual_disk();
-
-	if (!is_valid_user_name(user_name))
-		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
-	else {
-		int user_index_in_userblocks = get_usersblocks_index_of_user_name(user_name);
-		if (get_num_user_files_in_usersblocks(user_index_in_userblocks) > 0) {
-			strcpy(out_msg, "LIST");
-			strcat(out_msg, LIST_DELIM);
-			for (int file = 0; file < MAX_USER_FILES; file++)
-				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0) {
-					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
-					strcat(out_msg, LIST_DELIM);
-				}
-		} else
-			sprintf(out_msg, "ERROR: No files found in user (%s) directory.", user_name);
-	}
-
-	result.out_msg.out_msg_len = strlen(out_msg);
-	result.out_msg.out_msg_val = malloc(strlen(out_msg));
-	strcpy(result.out_msg.out_msg_val, out_msg);
-
-	return &result;
-}
-
-
-delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
-	static delete_output result;
-	char out_msg[OUT_MSG_BUF_LEN];
-
-	char* user_name = argp->user_name;
-	char* file_name = argp->file_name;
-
-	// Delete from file table
-	int file_index_in_filetable = get_filetable_index_of_file_name(user_name, file_name);
-	if (file_index_in_filetable != -1)
-		drop_entry_from_file_table(filetable->entries[file_index_in_filetable].fileDescriptor);
-	//else
-	//	sprintf(out_msg, "ERROR: File (%s) does not exist.", file_name);
-
-	// Now delete from vdisk
-	initialize_virtual_disk();
-	if (!is_valid_user_name(user_name))
-		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
-	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(user_name), file_name))
-		sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
-	else {
-		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
-		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
-		drop_file_from_vdisk(user_index_in_usersblocks, file_index_in_usersblocks);
-		write_update_to_vdisk();
-		sprintf(out_msg, "DELETE: File (%s) deleted.", file_name);
-	}
-
-	result.out_msg.out_msg_len = strlen(out_msg);
-	result.out_msg.out_msg_val = malloc(strlen(out_msg));
-	strcpy(result.out_msg.out_msg_val, out_msg);
-
-	return &result;
-}
-
-
-close_output* close_file_1_svc(close_input* argp, struct svc_req* rqstp) {
-	static close_output result;
-	char out_msg[OUT_MSG_BUF_LEN];
-
-	int file_descriptor = argp->fd;
-	if (!is_valid_file_descriptor(file_descriptor))
-		sprintf(out_msg, "CLOSE: File descriptor (%d) is not open.", file_descriptor);
-	else {
-		drop_entry_from_file_table(file_descriptor);
-		sprintf(out_msg, "CLOSE: File descriptor (%d) closed.", file_descriptor);
 	}
 
 	result.out_msg.out_msg_len = strlen(out_msg);
