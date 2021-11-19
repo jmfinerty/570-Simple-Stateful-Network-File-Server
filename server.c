@@ -51,15 +51,15 @@ delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 	// Now delete from vdisk
 
 	load_or_initialize_virtual_disk();
-	
+
 	if (!is_valid_user_name(user_name)) {
 		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
-	} 
-	
+	}
+
 	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(user_name), file_name)) {
 		sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
-	} 
-	
+	}
+
 	// Username and filename both exist in usersblocks
 	else {
 		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
@@ -154,7 +154,7 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	static open_output result;
 	result.fd = -1;
-	
+
 	char* user_name = argp->user_name;
 	char* file_name = argp->file_name;
 
@@ -282,7 +282,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	// Does this file exist?
 	if (!is_valid_file_descriptor(file_descriptor)) {
 		sprintf(out_msg, "ERROR: File descriptor (%d) unknown.", file_descriptor);
-	
+
 	// File exists. Does the user exist?
 	} else if (!is_valid_user_name(user_name)) {
 		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
@@ -371,12 +371,13 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
  to the file represented by the file descriptor
  from the current position and
  advances the file pointer the number of bytes written.
- Uses variable length buffer. 
+ Uses variable length buffer.
  Returns appropriate error message if write fails."
 */
 // NOTE: Assignment spec states I must use a variable length buffer.
 //  This is not possible in c...
-//  At least not whatever version my virtual machine has.write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
+//  At least not whatever version my virtual machine has.
+write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
 
@@ -391,8 +392,8 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	// TODO: This condition is absurdly long. It does work though...
 	} else if (!is_valid_file_name(get_usersblocks_index_of_user_name(argp->user_name), filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName)) {
 		sprintf(out_msg, "ERROR: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
-	
-	
+
+
 	// User, file, and file descriptor are all valid
 	} else {
 
@@ -410,7 +411,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 
 		if (new_pos > MAX_POINTER_POS) {
 			sprintf(out_msg, "ERROR: Cannot write to (%s) past EOF.", file_name);
-		
+
 		} else {
 
 			int block_index_in_usersblocks = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file

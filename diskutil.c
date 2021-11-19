@@ -42,7 +42,7 @@ int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
     // Give each of those files the default filename, then
     // mark each of that file's blocks unallocated.
     for (int user = 0; user < MAX_NUM_USERS; user++) {
-        
+
         strcpy(usersblocks->users[user].name, DEFAULT_USER_NAME);
         for (int file = 0; file < MAX_USER_FILES; file++) {
             strcpy(usersblocks->users[user].files[file].name, DEFAULT_FILE_NAME);
@@ -125,7 +125,7 @@ int _read_update_from_vdisk() {
 // iterates through the file table until an unallocated user slot is found,
 // then finds an empty file slot in that user's files and allocates both.
 // If there are no empty user slots or file slots in empty users, return -1.
-// Otherwise return the file descriptor of the created file. 
+// Otherwise return the file descriptor of the created file.
 int file_descriptors_pos = INIT_FILE_DESCRIP; // tracks the current file descriptor, so new ones will always be unique
 int add_entry_to_file_table(char* user_name, char* file_name) {
     for (int entry = 0; entry < MAX_FT_SIZE; entry++)
