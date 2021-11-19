@@ -10,12 +10,12 @@
 #define VDISK_LOC       "vdisk"  // name of virtual disk file
 
 // Files
-#define DEFAULT_FILE_NAME "SOMEFILE" // name to assign to unallocated file space
+#define DEFAULT_FILE_NAME "Fdq2RcMW" // name to assign to unallocated file space
 #define INIT_FILE_DESCRIP 9          // will start descriptors at 10 (9+=1)
 #define MAX_FILE_NAME_LEN 20         // longest name a file can have -- FROM SSNFS.H, don't change
 
 // Users
-#define DEFAULT_USER_NAME "SOMEUSER" // name to assign unallocated space for users
+#define DEFAULT_USER_NAME "u48llq36" // name to assign unallocated space for users
 #define MAX_NUM_USERS     16         // maximum number of users. should be power of 2 for division
 #define MAX_USER_NAME_LEN 15         // maximum length of username, DEFINED IN ASSIGNMENT SPEC
 
