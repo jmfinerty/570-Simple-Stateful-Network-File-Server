@@ -75,9 +75,9 @@ int Open(char* filename_to_open) {
 		clnt_perror(clnt, "call failed");
 	}
 
-	printf("In client: Directory name is:%s \n"
-		   "In client: Name of the file opened is:%s \n"
-		   "In client: file descriptor returned is:%d\n",
+	printf("Directory name is:%s \n"
+		   "Name of the file opened is:%s \n"
+		   "File descriptor returned is:%d\n",
 			open_file_1_arg.user_name,
 			result_1->out_msg.out_msg_val,
 			result_1->fd);
@@ -100,7 +100,8 @@ void Read(int fd, char* buffer, int num_bytes_to_read) {
 		clnt_perror(clnt, "call failed");
 	}
 
-	printf("%s", result_2->out_msg.out_msg_val); fflush(stdout);
+	//printf("%s", result_2->out_msg.out_msg_val); fflush(stdout);
+	//memcpy(buffer, result_2->buffer.buffer_val, num_bytes_to_read);
 
 }
 
@@ -142,61 +143,9 @@ int main (int argc, char *argv[]) {
 
 	user_name = getpwuid(getuid())->pw_name; // given in assignment spec
 
-
-	// Testing script
-
-	int fd;
-
-	// TODO:
-	/*
-	one of read or write is broken, not sure which
-	if I run this, read will be wrong
-	if I run it again, it will be right
-	repeated runs are also right
-	I cant tell if the inside of vdisk is correct
-
-	Test script from assignment spec (uncommented below) prints this.
-	Each print has 10 more trailing whitespace chars than the last
-	Each line begins with some weird symbols
-
-	���This is a 
-	���This is a test      
-	���This is a test                
-	���This is a test                          
-	���This is a test                                    Q�
-	���This is a test                                              
-	���This is a test                                                        
-	���This is a test                                                                  
-	���This is a test                                                                            
-	���This is a test                                                                                      
-	���This is a test                                                                                                
-	���This is a test                                                                                                          
-	���This is a test                                                                                                                    ��
-	���This is a test                                                                                                                              
-	���This is a test                                                                                                                                        
-	���This is a test                                                                                                                                                  
-	���This is a test                                                                                                                                                            
-	���This is a test                                                                                                                                                                      
-	���This is a test                                                                                                                                                                                
-	���This is a test                                                                                                                                                                                          
-
-	*/
-
-	// Re-opening it
-	/*fd = Open("myfile2");
-	printf("File descriptor returnd inside main() is:%d\n",  fd);
-	List();
-
-	char buf1[30];
-	strcpy(buf1, "a");
-	Write(fd, buf1, 20);
-	//Close(fd);
-	fd = Open("myfile2");
-	char buf[10];
-	Read(fd, buf, 10);
-
-	//Delete("myfile2");
-	List();*/
+	// ==================================================
+	// PASTE TESTING CODE BELOW HERE
+	// ==================================================
 
 	int i,j;
 	int fd1,fd2;
@@ -215,16 +164,9 @@ int main (int argc, char *argv[]) {
 	Delete("File1");
 	List();
 
-
-	/*
-	int i,j;
-	int fd1,fd2;
-	char buffer[100];
-	fd1=Open("File1"); // opens the file "File1"
-	for (i=0; i< 20;i++){
-		Write(fd1, "This is a test program for cs570 assignment 4", 15);
-	}
-	*/
+	// ==================================================
+	// PUT TESTING CODE ABOVE HERE
+	// ==================================================
 
 	exit (0);
 }
