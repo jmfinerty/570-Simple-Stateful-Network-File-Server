@@ -315,7 +315,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 			int new_pos = old_pos + bytes_to_read;
 
 			if (new_pos > MAX_POINTER_POS) {
-				sprintf(out_msg, "ERROR: Cannot write to (%s) past EOF.", file_name);
+				sprintf(out_msg, "ERROR: Cannot read from (%s) past EOF.", file_name);
 
 			} else {
 
