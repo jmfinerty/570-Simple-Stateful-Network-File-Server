@@ -136,7 +136,7 @@ int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
             // Assign bytes in the empty block to this.
             // Stop when there aren't any more blocks left, or the whole file is allocated
             int assigned = 0;
-            for (int block = 1; block < MAX_NUM_BLOCKS; block++) {
+            for (int block = 0; block < MAX_NUM_BLOCKS; block++) {
 
                 // max file size reached, whole file's space is allocated, stop
                 if (assigned >= FILE_SIZE)
