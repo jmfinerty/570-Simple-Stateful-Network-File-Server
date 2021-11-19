@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <rpc/rpc.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -26,7 +27,10 @@ void Close(int fd) {
 
 	close_file_1_arg.fd = fd;
 
+	//printf("Closing file... ");
 	result_6 = close_file_1(&close_file_1_arg, clnt);
+	//printf("DONE.\n");
+
 	if (result_6 == (close_output*) NULL) {
 		clnt_perror(clnt, "call failed");
 	}
@@ -41,10 +45,15 @@ void Delete(char* file_name) {
 
 	strcpy(delete_file_1_arg.user_name, user_name);
 	strcpy(delete_file_1_arg.file_name, file_name);
+
+	//printf("Deleting file... ");
 	result_5 = delete_file_1(&delete_file_1_arg, clnt);
+	//printf("DONE.\n");
+
 	if (result_5 == (delete_output*) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
+
 	printf("%s\n", result_5->out_msg.out_msg_val);
 }
 
@@ -54,7 +63,11 @@ void List() {
 	list_input list_files_1_arg;
 
 	strcpy(list_files_1_arg.user_name, user_name);
+
+	//printf("Listing files... ");
 	result_4 = list_files_1(&list_files_1_arg, clnt);
+	//printf("DONE.\n");
+
 	if (result_4 == (list_output*) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
@@ -70,17 +83,15 @@ int Open(char* filename_to_open) {
 	strcpy(open_file_1_arg.user_name, user_name); //getpwuid(getuid())->pw_name);
 	strcpy(open_file_1_arg.file_name, filename_to_open);
 
+	//printf("Opening file... ");
   	result_1 = open_file_1(&open_file_1_arg, clnt);
+	//printf("DONE.\n");
+
 	if (result_1 == (open_output*) NULL) {
 		clnt_perror(clnt, "call failed");
 	}
 
-	printf("Directory name is:%s \n"
-		   "Name of the file opened is:%s \n"
-		   "File descriptor returned is:%d\n",
-			open_file_1_arg.user_name,
-			result_1->out_msg.out_msg_val,
-			result_1->fd);
+	printf("Opened file (%s) in directory (%s) with file descriptor (%d).\n", open_file_1_arg.user_name, result_1->out_msg.out_msg_val, result_1->fd);
 
 	return result_1->fd;
 }
@@ -95,13 +106,15 @@ void Read(int fd, char* buffer, int num_bytes_to_read) {
 	read_file_1_arg.fd = fd;
 	read_file_1_arg.numbytes = num_bytes_to_read;
 
+	//printf("Reading file... ");
 	result_2 = read_file_1(&read_file_1_arg, clnt);
+	//printf("DONE.\n");
+
 	if (result_2 == (read_output*) NULL) {
 		clnt_perror(clnt, "call failed");
 	}
 
-	//printf("%s", result_2->out_msg.out_msg_val); fflush(stdout);
-	//memcpy(buffer, result_2->buffer.buffer_val, num_bytes_to_read);
+	printf("%s\n", result_2->out_msg.out_msg_val);
 
 }
 
@@ -121,7 +134,10 @@ void Write(int fd, char* buffer, int num_bytes_to_write) {
 	write_file_1_arg.buffer.buffer_val = malloc(strlen(buffer));
 	strcpy(write_file_1_arg.buffer.buffer_val, buffer);
 
+	//printf("Writing file... ");
 	result_3 = write_file_1(&write_file_1_arg, clnt);
+	//printf("DONE.\n");
+
 	if (result_3 == (write_output*) NULL) {
 		clnt_perror(clnt, "call failed");
 	}

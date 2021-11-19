@@ -30,6 +30,8 @@ UsersBlocks ub;                 // stores information about users and block allo
 // This will populate usersblocks and blocks.
 // Should only be called after checking that the disk file actually exists.
 int _read_update_from_vdisk() {
+    printf("    Reading update from virtual disk... "); fflush(stdout);
+
     FILE* vdisk = fopen(VDISK_LOC, "r");
 
     // HACK
@@ -87,6 +89,8 @@ int _read_update_from_vdisk() {
         fgets(delim_buf, DELIM_BUF_SIZE, vdisk);
     }
 
+    printf("DONE.\n");
+
     fclose(vdisk);
     return 0;
 }
@@ -108,8 +112,10 @@ int add_entry_to_file_table(char* user_name, char* file_name) {
                 filetable->entries[entry].filePointerPos = 0;
                 strcpy(filetable->entries[entry].fileName, file_name);
                 strcpy(filetable->entries[entry].ownerUserName, user_name);
+                printf("    Added entry to file table for user (%s) file (%s).\n", user_name, file_name);
                 return file_descriptors_pos;
             }
+    printf("    Could not find slot in file table for user (%s) file (%s).\n", user_name, file_name);
     return -1;
 }
 
@@ -152,9 +158,11 @@ int add_file_to_usersblocks(int user_index_in_usersblocks, char* file_name) {
                     assigned += 1;
                 }
             }
+            printf("    Added file (%s) at index (%d).\n", file_name, file);
             return file;
         }
     }
+    printf("    Could not find slot to add file (%s).\n", file_name);
     return -1;
 }
 
@@ -166,8 +174,10 @@ int add_user_to_usersblocks(char* user_name) {
     for (int user = 0; user < MAX_NUM_USERS; user++)
         if (strcmp(DEFAULT_USER_NAME, ub.users[user].name) == 0) {
             strcpy(ub.users[user].name, user_name);
+            printf("    Added user (%s) at index (%d).\n", user_name, user);
             return user;
         }
+    printf("    Could not find slot to add user (%s).\n", user_name);
     return -1;
 }
 
@@ -179,6 +189,7 @@ int drop_entry_from_file_table(int file_descriptor) {
     for (int entry = 0; entry < MAX_FT_SIZE; entry++) {
         if (filetable->entries[entry].fileDescriptor == file_descriptor) {
             //file_descriptors_pos -= 1; // don't decrement actually, want file descriptors to be distinct
+            printf("    Removed file (%s) with descriptor (%d) from file table.\n", filetable->entries[entry].fileName, filetable->entries[entry].fileDescriptor);
             filetable->entries[entry].fileDescriptor = 0;
             filetable->entries[entry].filePointerPos = 0;
             strcpy(filetable->entries[entry].fileName, DEFAULT_FILE_NAME);
@@ -186,6 +197,7 @@ int drop_entry_from_file_table(int file_descriptor) {
             return 0;
         }
     }
+    printf("    Could not remove file with descriptor (%d) from file table.\n", file_descriptor);
     return 1;
 }
 
@@ -201,6 +213,7 @@ int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersb
             ub.blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]] = '0'; // set it to unallocated
             memset(blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]].data, ' ', BLOCK_SIZE);
             ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] = 0;
+            printf("    Removed file at index (%d) from user at index (%d) on disk.\n", user_index_in_usersblocks, file_index_in_usersblocks);
         }
     return 0;
 }
@@ -212,8 +225,10 @@ int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersb
 int write_update_to_file_pointer_pos(char* user_name, char* file_name, int file_descriptor, int file_pointer_pos) {
     for (int entry; entry < MAX_FT_SIZE; entry++)
         if (strcmp(filetable->entries[entry].ownerUserName, user_name) == 0)
-            if (filetable->entries[entry].fileDescriptor == file_descriptor)
+            if (filetable->entries[entry].fileDescriptor == file_descriptor) {
+                printf("    Moved file pointer of file with name (%s) and descriptor (%d) of user (%s) from position (%d) to (%d).", file_name, file_descriptor, user_name, filetable->entries[entry].filePointerPos, file_pointer_pos);
                 filetable->entries[entry].filePointerPos = file_pointer_pos;
+            }
     return 0;
 }
 
@@ -229,6 +244,8 @@ int write_update_to_file_pointer_pos(char* user_name, char* file_name, int file_
 // I feel like this is an intuitive format. It is basically Index->Directories->Files->FileContentInfo, then actual info at bottom.
 // Sort of like file details and then actual file.
 int write_update_to_vdisk() {
+
+    printf("    Writing update to disk... "); fflush(stdout);
 
     FILE* vdisk = fopen(VDISK_LOC, "w");
 
@@ -263,6 +280,8 @@ int write_update_to_vdisk() {
         fputs(VDISK_DELIM, vdisk);
     }
 
+    printf("DONE.\n");
+
     fclose(vdisk);
     return 0;
 }
@@ -276,6 +295,7 @@ int load_or_initialize_virtual_disk() {
     // If it has not been, allocate space for it, then
     // assign default values to each entry in it.
     if (filetable == NULL) {
+        printf("    File table does not exist, initializing... "); fflush(stdout);
         filetable = (FileTable*) malloc(sizeof(FileTable)+1);
         for (int i = 0; i < MAX_FT_SIZE; i++) {
             strcpy(filetable->entries[i].ownerUserName, DEFAULT_USER_NAME);
@@ -283,11 +303,14 @@ int load_or_initialize_virtual_disk() {
             filetable->entries[i].fileDescriptor = 0;
             filetable->entries[i].filePointerPos = 0;
         }
+        printf("DONE.\n");
     }
 
     // Check if the virtual disk file exists.
     // (F_OK = check existence https://linux.die.net/man/2/access)
     if (access(VDISK_LOC, F_OK)) {
+
+        printf("    Virtual disk at location (%s) does not exist, initializing... ", VDISK_LOC); fflush(stdout);
 
         // Access returned 1, so disk file does not exist
 
@@ -315,6 +338,8 @@ int load_or_initialize_virtual_disk() {
                 }
             }
         }
+
+        printf("DONE.\n");
 
         write_update_to_vdisk();
 

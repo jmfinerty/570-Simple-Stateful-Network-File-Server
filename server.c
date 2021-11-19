@@ -16,16 +16,22 @@ close_output* close_file_1_svc(close_input* argp, struct svc_req* rqstp) {
 
 	int file_descriptor = argp->fd;
 
+	printf("\nCLOSE: User requested file with descriptor (%d) be closed.\n", file_descriptor);
+
 	if (!is_valid_file_descriptor(file_descriptor)) {
 		sprintf(out_msg, "CLOSE: File descriptor (%d) is not open.", file_descriptor);
+		printf("CLOSE: File with descriptor (%d) is already open, cannot be closed.\n", file_descriptor);
 	} else {
 		drop_entry_from_file_table(file_descriptor);
 		sprintf(out_msg, "CLOSE: File descriptor (%d) closed.", file_descriptor);
+		printf("CLOSE: File with descriptor (%d) has been closed.\n", file_descriptor);
 	}
 
 	result.out_msg.out_msg_len = strlen(out_msg);
 	result.out_msg.out_msg_val = malloc(strlen(out_msg));
 	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	printf("CLOSE: End of CLOSE.\n");
 
 	return &result;
 }
@@ -43,21 +49,28 @@ delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 	char* user_name = argp->user_name;
 	char* file_name = argp->file_name;
 
+	printf("\nDELETE: User (%s) requested file (%s) be deleted.\n", user_name, file_name);
+
 	// Delete from file table
 	int file_index_in_filetable = get_filetable_index_of_file_name(user_name, file_name);
-	if (file_index_in_filetable != -1)
-		drop_entry_from_file_table(filetable->entries[file_index_in_filetable].fileDescriptor);
+	if (file_index_in_filetable != -1) {
+		int file_descriptor = filetable->entries[file_index_in_filetable].fileDescriptor;
+		drop_entry_from_file_table(file_descriptor);
+		printf("DELETE: File with name (%s) and descriptor (%d) of user (%s) dropped from file table.\n", file_name, file_descriptor, user_name);
+	}
 
 	// Now delete from vdisk
 
 	load_or_initialize_virtual_disk();
 
 	if (!is_valid_user_name(user_name)) {
-		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+		sprintf(out_msg, "DELETE: User (%s) unknown.", user_name);
+		printf("DELETE: User (%s) unknown.\n", user_name);
 	}
 
 	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(user_name), file_name)) {
-		sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
+		sprintf(out_msg, "DELETE: File (%s) unknown.", file_name);
+		printf("DELETE: File (%s) unknown.\n", file_name);
 	}
 
 	// Username and filename both exist in usersblocks
@@ -71,11 +84,14 @@ delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 		write_update_to_vdisk();
 
 		sprintf(out_msg, "DELETE: File (%s) deleted.", file_name);
+		printf("DELETE: File with name (%s) of user (%s) deleted from disk.\n", file_name, user_name);
 	}
 
 	result.out_msg.out_msg_len = strlen(out_msg);
 	result.out_msg.out_msg_val = malloc(strlen(out_msg));
 	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	printf("DELETE: End of DELETE.\n");
 
 	return &result;
 }
@@ -92,10 +108,13 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 
 	char* user_name = argp->user_name;
 
+	printf("\nLIST: User (%s) requested list of their files.\n", user_name);
+
 	load_or_initialize_virtual_disk();
 
 	if (!is_valid_user_name(user_name)) {
-		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+		sprintf(out_msg, "LIST: User (%s) unknown.", user_name);
+		printf("LIST: User (%s) unknown.\n", user_name);
 	}
 
 	// User exists in usersblocks
@@ -107,7 +126,8 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 			strcat(out_msg, LIST_DELIM);
 			strcpy(out_msg, "LIST");
 
-			for (int file = 0; file < MAX_USER_FILES; file++)
+			for (int file = 0; file < MAX_USER_FILES; file++) {
+
 				// Check if file is not just unallocated space
 				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0) {
 					// TODO: Using strcat because I couldn't think of a better way. Is strcat unconventional?
@@ -115,10 +135,15 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
 				}
 
+			}
+
+			printf("LIST: File names copied.\n");
+
 		// User exists in usersblocks, but has no files.
 		// TODO: should this be LIST: or ERROR: ?
 		} else {
 			sprintf(out_msg, "LIST: No files found in user (%s) directory.", user_name);
+			printf("LIST: No files found in user (%s) directory.\n", user_name);
 		}
 
 	}
@@ -126,6 +151,8 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 	result.out_msg.out_msg_len = strlen(out_msg);
 	result.out_msg.out_msg_val = malloc(strlen(out_msg));
 	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	printf("LIST: End of LIST.\n");
 
 	return &result;
 }
@@ -158,6 +185,8 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	char* user_name = argp->user_name;
 	char* file_name = argp->file_name;
 
+	printf("\nOPEN: User (%s) requested file (%s) be opened.\n", user_name, file_name);
+
 	load_or_initialize_virtual_disk();
 
 	// Does file exist already?
@@ -183,11 +212,12 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 				add_file_to_usersblocks(user_index_in_usersblocks, file_name);
 				result.fd = add_entry_to_file_table(user_name, file_name);
 				write_update_to_vdisk();
+				printf("OPEN: User is unknown, created new directory for user.\n");
 			}
 
 			// There is not room to add them
 			else {
-				// cant do anything, return -1
+				printf("OPEN: User is unknown, no room for additional users.\n");
 			}
 
 		// User exists already
@@ -208,17 +238,20 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 					add_file_to_usersblocks(user_index_in_usersblocks, file_name);
 					result.fd = add_entry_to_file_table(user_name, file_name);
 					write_update_to_vdisk();
+					printf("OPEN: File is unknown, created new entry for file.\n");
 				}
 
 				// There is not room to add it
 				else {
-					// cant do anything, return -1
+					printf("OPEN: File is unknown, no room for additional files.\n");
 				}
 			}
 
 			// File exists in usersblocks
 			else {
 				result.fd = add_entry_to_file_table(user_name, file_name);
+				write_update_to_vdisk();
+				printf("OPEN: Added entry for file.\n");
 			}
 
 		}
@@ -227,11 +260,14 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	// Just return its file descriptor
 	} else {
 		result.fd = filetable->entries[file_index_in_filetable].fileDescriptor;
+		printf("OPEN: Opened file with (%d) as descriptor.\n", result.fd);
 	}
 
 	result.out_msg.out_msg_len = strlen(file_name);
 	result.out_msg.out_msg_val = malloc(strlen(file_name));
 	strcpy(result.out_msg.out_msg_val, file_name);
+
+	printf("OPEN: End of OPEN.\n");
 
 	return &result;
 }
@@ -283,15 +319,19 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	int file_descriptor = argp->fd;
 	char* user_name = argp->user_name;
 
+	printf("\nREAD: User (%s) requested file with descriptor (%d) have bytes (%d) read from it.\n", user_name, file_descriptor, bytes_to_read);
+
 	load_or_initialize_virtual_disk();
 
 	// Does this file exist?
 	if (!is_valid_file_descriptor(file_descriptor)) {
-		sprintf(out_msg, "ERROR: File descriptor (%d) unknown.", file_descriptor);
+		sprintf(out_msg, "READ: File descriptor (%d) unknown.", file_descriptor);
+		printf("READ: File descriptor (%d) unknown.\n", file_descriptor);
 
 	// File exists. Does the user exist?
 	} else if (!is_valid_user_name(user_name)) {
-		sprintf(out_msg, "ERROR: User (%s) unknown.", user_name);
+		sprintf(out_msg, "READ: User (%s) unknown.", user_name);
+		printf("READ: User (%s) unknown.\n", user_name);
 
 	// File and user both exist. Read.
 	} else {
@@ -304,15 +344,19 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 		// Weird bug I got a couple times.
 		// I guess file descriptor can exist but file can't?
 		if (!is_valid_file_name(user_index_in_usersblocks, file_name)) {
-			sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
+			sprintf(out_msg, "READ: File (%s) unknown.", file_name);
+			printf("READ: File (%s) unknown.\n", file_name);
 
 		} else {
 
 			int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
 			int new_pos = old_pos + bytes_to_read;
 
+			printf("WRITE: File pointer will be moved from (%d) to (%d) totaling (%d) bytes.", old_pos, new_pos, bytes_to_read);
+
 			if (new_pos > MAX_POINTER_POS) {
-				sprintf(out_msg, "ERROR: Cannot read from (%s) past EOF.", file_name);
+				sprintf(out_msg, "READ: Cannot read from (%s) past EOF.", file_name);
+				printf("READ: Cannot read from (%s) past EOF.\n", file_name);
 
 			} else {
 
@@ -327,6 +371,10 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 					pos_in_block_in_usersblocks = 0;
 				}
 
+				printf("READ: Block (%d) at position (%d) is start of read.\n", block_index_in_usersblocks, pos_in_block_in_usersblocks);
+
+				printf("READ: Read bytes ");
+
 				int byte_index_in_buffer = 0;
 				while (byte_index_in_buffer < bytes_to_read) {
 
@@ -340,18 +388,21 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 						out_data[byte_index_in_buffer] = blocks[pos_of_block_in_blocks].data[pos_in_block_in_usersblocks];
 						pos_in_block_in_usersblocks += 1;
 						read = true;
+						printf("%d ", byte_index_in_buffer);
 					}
 
 					// move on to next block if needed
 					if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
 						block_index_in_usersblocks += 1;
 						pos_in_block_in_usersblocks = 0;
+						printf("READ: Moved to block (%d) at position (%d) bytes.\n", block_index_in_usersblocks, pos_in_block_in_usersblocks);
 					}
 
 					byte_index_in_buffer += 1;
 					last_buffer_index = byte_index_in_buffer;
 				}
 
+				printf(" from buffer.\n");
 				sprintf(out_msg, "READ: Read successful.");
 				write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
 
@@ -364,11 +415,14 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	strcpy(result.out_msg.out_msg_val, out_msg);
 
 	if (read) {
+		printf("READ: Read contents (%s) of length (%ld) from file.\n", out_data, strlen(out_data));
 		out_data[last_buffer_index] = '\0'; // null terminate string
 		result.buffer.buffer_len = strlen(out_data);
 		result.buffer.buffer_val = malloc(strlen(out_data));
 		strcpy(result.buffer.buffer_val, out_data);
 	}
+
+	printf("READ: End of READ.\n");
 
 	return &result;
 }
@@ -389,17 +443,22 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
 
+	printf("\nWRITE: User (%s) requested file with descriptor (%d) have contents (%s) of length (%d) written.\n", argp->user_name, argp->fd, argp->buffer.buffer_val, argp->numbytes);
+
 	load_or_initialize_virtual_disk();
 
 	if (!is_valid_file_descriptor(argp->fd)) {
-		sprintf(out_msg, "ERROR: File descriptor (%d) unknown.", argp->fd);
+		sprintf(out_msg, "WRITE: File descriptor (%d) unknown.", argp->fd);
+		printf("WRITE: File descriptor (%d) unknown.", argp->fd);
 
 	} else if (!is_valid_user_name(argp->user_name)) {
-		sprintf(out_msg, "ERROR: User (%s) unknown.", argp->user_name);
+		sprintf(out_msg, "WRITE: User (%s) unknown.", argp->user_name);
+		printf("WRITE: User (%s) unknown.", argp->user_name);
 
 	// TODO: This condition is absurdly long. It does work though...
 	} else if (!is_valid_file_name(get_usersblocks_index_of_user_name(argp->user_name), filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName)) {
-		sprintf(out_msg, "ERROR: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
+		sprintf(out_msg, "WRITE: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
+		printf("WRITE: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
 
 
 	// User, file, and file descriptor are all valid
@@ -417,8 +476,10 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 		int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
 		int new_pos = old_pos - 1 + bytes_to_write;
 
+		printf("WRITE: File pointer will be moved from (%d) to (%d) totaling (%d) bytes.", old_pos, new_pos, bytes_to_write);
+
 		if (new_pos > MAX_POINTER_POS) {
-			sprintf(out_msg, "ERROR: Cannot write to (%s) past EOF.", file_name);
+			sprintf(out_msg, "WRITE: Cannot write to (%s) past EOF.", file_name);
 
 		} else {
 
@@ -436,12 +497,16 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 			while (byte_index_in_buffer < bytes_to_write) {
 
 				if (block_index_in_usersblocks >= FILE_SIZE) {
-					sprintf(out_msg, "ERROR: Reached EOF while writing to (%s).", file_name);
+					sprintf(out_msg, "WRITE: Reached EOF while writing to (%s).", file_name);
+					printf("WRITE: Reached EOF while writing to (%s).", file_name);
 					break;
 				}
 
 				else {
 					// TODO: also works, but is ridiculously long
+					if (block_index_in_usersblocks < 3) {
+						//printf("here %d %d %s", block_index_in_usersblocks, pos_in_block_in_usersblocks, blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks]].data); fflush(stdout);
+					}
 					blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks]].data[pos_in_block_in_usersblocks] =
 						argp->buffer.buffer_val[byte_index_in_buffer];
 					pos_in_block_in_usersblocks += 1;
@@ -459,6 +524,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 			write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
 			write_update_to_vdisk();
 			sprintf(out_msg, "WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
+			printf("WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
 
 		}
 	}
@@ -466,6 +532,8 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	result.out_msg.out_msg_len = strlen(out_msg);
 	result.out_msg.out_msg_val = malloc(strlen(out_msg));
 	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	printf("WRITE: End of WRITE.\n");
 
 	return &result;
 }
