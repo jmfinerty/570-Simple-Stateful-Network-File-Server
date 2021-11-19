@@ -26,36 +26,6 @@ FileTable* filetable = NULL;    // stores information about users and files they
 UsersBlocks ub;                 // stores information about users and block allocation
 
 
-// Initialize usersblocks by copying default values into everything inside it.
-int _initialize_users_and_blocks(UsersBlocks* usersblocks) {
-
-    // Copy '0' into index of every block to indicate
-    // that the block is not allocated.
-    memset(usersblocks->blocks, '0', MAX_NUM_BLOCKS);
-
-    // Copy spaces (indicating no value stored there) into every block
-    for (int block = 0; block < MAX_NUM_BLOCKS; block++)
-        memset(blocks[block].data, ' ', BLOCK_SIZE);
-
-    // Iterate through every user.
-    // Give them the default username, then go through each of their sile slots.
-    // Give each of those files the default filename, then
-    // mark each of that file's blocks unallocated.
-    for (int user = 0; user < MAX_NUM_USERS; user++) {
-
-        strcpy(usersblocks->users[user].name, DEFAULT_USER_NAME);
-        for (int file = 0; file < MAX_USER_FILES; file++) {
-            strcpy(usersblocks->users[user].files[file].name, DEFAULT_FILE_NAME);
-            for (int block = 0; block < FILE_SIZE; block++)
-                usersblocks->users[user].files[file].blocks[block] = 0;
-        }
-
-    }
-
-    return 0;
-}
-
-
 // Read information in from existing virtual disk file.
 // This will populate usersblocks and blocks.
 // Should only be called after checking that the disk file actually exists.
@@ -314,8 +284,32 @@ int load_or_initialize_virtual_disk() {
     if (access(VDISK_LOC, F_OK)) {
 
         // Access returned 1, so disk file does not exist
-        // initialize UsersBlocks from the disk, then write it out to file
-        _initialize_users_and_blocks(&ub);
+
+        // Copy '0' into index of every block to indicate
+        // that the block is not allocated.
+        memset(ub.blocks, '0', MAX_NUM_BLOCKS);
+
+        // Copy spaces (indicating no value stored there) into every block
+        for (int b = 0; b < MAX_NUM_BLOCKS; b++) {
+            memset(blocks[b].data, ' ', BLOCK_SIZE);
+        }
+
+        // Iterate through every user.
+        // Give them the default username, then go through each of their sile slots.
+        // Give each of those files the default filename, then
+        // mark each of that file's blocks unallocated.
+        for (int user = 0; user < MAX_NUM_USERS; user++) {
+            strcpy(ub.users[user].name, DEFAULT_USER_NAME);
+
+            for (int file = 0; file < MAX_USER_FILES; file++) {
+                strcpy(ub.users[user].files[file].name, DEFAULT_FILE_NAME);
+
+                for (int block = 0; block < FILE_SIZE; block++) {
+                    ub.users[user].files[file].blocks[block] = 0;
+                }
+            }
+        }
+
         write_update_to_vdisk();
 
     } else {
