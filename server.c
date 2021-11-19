@@ -106,11 +106,13 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 
 			strcpy(out_msg, "LIST");
 			strcat(out_msg, LIST_DELIM);
+			strcpy(out_msg, "LIST");
 
 			for (int file = 0; file < MAX_USER_FILES; file++)
 				// Check if file is not just unallocated space
 				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0) {
 					// TODO: Using strcat because I couldn't think of a better way. Is strcat unconventional?
+					strcat(out_msg, LIST_DELIM);
 					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
 					strcat(out_msg, LIST_DELIM);
 				}
