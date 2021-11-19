@@ -20,6 +20,49 @@ void ssnfsprog_1(char* host) {
 }
 
 
+void Close(int fd) {
+	close_output* result_6;
+	close_input close_file_1_arg;
+
+	close_file_1_arg.fd = fd;
+
+	result_6 = close_file_1(&close_file_1_arg, clnt);
+	if (result_6 == (close_output*) NULL) {
+		clnt_perror(clnt, "call failed");
+	}
+
+	printf("%s\n", result_6->out_msg.out_msg_val);
+}
+
+
+void Delete(char* file_name) {
+	delete_output* result_5;
+	delete_input delete_file_1_arg;
+
+	strcpy(delete_file_1_arg.user_name, user_name);
+	strcpy(delete_file_1_arg.file_name, file_name);
+	result_5 = delete_file_1(&delete_file_1_arg, clnt);
+	if (result_5 == (delete_output*) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	printf("%s\n", result_5->out_msg.out_msg_val);
+}
+
+
+void List() {
+	list_output* result_4;
+	list_input list_files_1_arg;
+
+	strcpy(list_files_1_arg.user_name, user_name);
+	result_4 = list_files_1(&list_files_1_arg, clnt);
+	if (result_4 == (list_output*) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+
+	printf("%s\n", result_4->out_msg.out_msg_val);
+}
+
+
 int Open(char* filename_to_open) {
 	open_output* result_1;
 	open_input open_file_1_arg;
@@ -40,6 +83,25 @@ int Open(char* filename_to_open) {
 			result_1->fd);
 
 	return result_1->fd;
+}
+
+
+void Read(int fd, char* buffer, int num_bytes_to_read) {
+	read_output* result_2;
+	read_input read_file_1_arg;
+
+
+	strcpy(read_file_1_arg.user_name, user_name);
+	read_file_1_arg.fd = fd;
+	read_file_1_arg.numbytes = num_bytes_to_read;
+
+	result_2 = read_file_1(&read_file_1_arg, clnt);
+	if (result_2 == (read_output*) NULL) {
+		clnt_perror(clnt, "call failed");
+	}
+
+	printf("%s", result_2->out_msg.out_msg_val); fflush(stdout);
+
 }
 
 
@@ -64,68 +126,6 @@ void Write(int fd, char* buffer, int num_bytes_to_write) {
 	}
 
 	printf("%s\n", result_3->out_msg.out_msg_val);
-}
-
-
-void Read(int fd, char* buffer, int num_bytes_to_read) {
-	read_output* result_2;
-	read_input read_file_1_arg;
-
-
-	strcpy(read_file_1_arg.user_name, user_name);
-	read_file_1_arg.fd = fd;
-	read_file_1_arg.numbytes = num_bytes_to_read;
-
-	result_2 = read_file_1(&read_file_1_arg, clnt);
-	if (result_2 == (read_output*) NULL) {
-		clnt_perror(clnt, "call failed");
-	}
-
-	printf("%s\n", result_2->out_msg.out_msg_val);
-
-}
-
-
-void Close(int fd) {
-	close_output* result_6;
-	close_input close_file_1_arg;
-
-	close_file_1_arg.fd = fd;
-
-	result_6 = close_file_1(&close_file_1_arg, clnt);
-	if (result_6 == (close_output*) NULL) {
-		clnt_perror(clnt, "call failed");
-	}
-
-	printf("%s\n", result_6->out_msg.out_msg_val);
-}
-
-
-void List() {
-	list_output* result_4;
-	list_input list_files_1_arg;
-
-	strcpy(list_files_1_arg.user_name, user_name);
-	result_4 = list_files_1(&list_files_1_arg, clnt);
-	if (result_4 == (list_output*) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-
-	printf("%s\n", result_4->out_msg.out_msg_val);
-}
-
-
-void Delete(char* file_name) {
-	delete_output* result_5;
-	delete_input delete_file_1_arg;
-
-	strcpy(delete_file_1_arg.user_name, user_name);
-	strcpy(delete_file_1_arg.file_name, file_name);
-	result_5 = delete_file_1(&delete_file_1_arg, clnt);
-	if (result_5 == (delete_output*) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	printf("%s\n", result_5->out_msg.out_msg_val);
 }
 
 
