@@ -104,7 +104,6 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 		int user_index_in_userblocks = get_usersblocks_index_of_user_name(user_name);
 		if (get_num_user_files_in_usersblocks(user_index_in_userblocks) > 0) {
 
-			strcpy(out_msg, "LIST");
 			strcat(out_msg, LIST_DELIM);
 			strcpy(out_msg, "LIST");
 
@@ -114,7 +113,6 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 					// TODO: Using strcat because I couldn't think of a better way. Is strcat unconventional?
 					strcat(out_msg, LIST_DELIM);
 					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
-					strcat(out_msg, LIST_DELIM);
 				}
 
 		// User exists in usersblocks, but has no files.
