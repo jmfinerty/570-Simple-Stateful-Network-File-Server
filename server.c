@@ -278,6 +278,11 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	static read_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
 
+	int bytes_to_read = argp->numbytes;
+	char out_data[bytes_to_read+1];
+	int last_buffer_index = 0;
+	bool read = false;
+
 	int file_descriptor = argp->fd;
 	char* user_name = argp->user_name;
 
@@ -305,9 +310,6 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 			sprintf(out_msg, "ERROR: File (%s) unknown.", file_name);
 
 		} else {
-
-			int bytes_to_read = argp->numbytes;
-			char out_data[bytes_to_read+1];
 
 			int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
 			int new_pos = old_pos + bytes_to_read;
@@ -340,6 +342,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 						pos_of_block_in_blocks = ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks];
 						out_data[byte_index_in_buffer] = blocks[pos_of_block_in_blocks].data[pos_in_block_in_usersblocks];
 						pos_in_block_in_usersblocks += 1;
+						read = true;
 					}
 
 					// move on to next block if needed
@@ -349,10 +352,10 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 					}
 
 					byte_index_in_buffer += 1;
+					last_buffer_index = byte_index_in_buffer;
 				}
 
-				out_data[byte_index_in_buffer] = '\0'; // null terminate string
-				strcat(out_msg, out_data); // HACK: why does strcpy not work here??
+				sprintf(out_msg, "READ: Read successful.");
 				write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
 
 			}
@@ -362,6 +365,12 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	result.out_msg.out_msg_len = strlen(out_msg);
 	result.out_msg.out_msg_val = malloc(strlen(out_msg));
 	strcpy(result.out_msg.out_msg_val, out_msg);
+
+	if (read) {
+		out_data[last_buffer_index] = '\0'; // null terminate string
+		result.buffer.buffer_val = malloc(strlen(out_data));
+		strcpy(result.buffer.buffer_val, out_data);
+	}
 
 	return &result;
 }
