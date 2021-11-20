@@ -4,7 +4,7 @@
 // Work is original and by Jacob Finerty, student ID 912307438,
 // with exception of provided sample code and files.
 // Any sources referenced are cited in comments.
-// Last modification before submission: 19 Nov 2021, 9:27PM
+// Last modification before submission: 19 Nov 2021, 9:33PM
 
 #ifndef SERVERUTIL_H
 #define SERVERUTIL_H

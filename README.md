@@ -90,4 +90,4 @@ Be cautious of opening the disk in a text editor, as it stores 16777216 bytes of
 - > Each user should be assigned by the server a home directory.
 - > Users do not have the ability to create subdirectories within their home directory.
 
-Last modification before submission: 22 Nov 2021, 9:27PM
+Last modification before submission: 19 Nov 2021, 9:33PM
