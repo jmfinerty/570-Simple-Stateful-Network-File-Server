@@ -1,3 +1,11 @@
+// University of Kentucky CS570-001 "Modern Operating Systems", Fall 2021.
+// Assignment 4: "Implement a Simple Stateful Network File Server"
+// Due November 19th, 2021 at 11:59PM.
+// Work is original and by Jacob Finerty, student ID 912307438,
+// with exception of provided sample code and files.
+// Any sources referenced are cited in comments.
+// Last modification before submission: 19 Nov 2021, 9:27PM
+
 #include "ssnfs.h"
 #include "diskutil.h"
 #include "serverutil.h"
