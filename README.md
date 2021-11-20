@@ -79,6 +79,7 @@ Be cautious of opening the disk in a text editor, as it stores 16777216 bytes of
 - A warning will be printed in the server if it appears that the user read from a file without first resetting the pointer. Files are required to be 64 blocks of 512 bytes. Bytes not written to must exist in the file, but be empty. I represent this with space characters. So, if a user opens, then writes, then reads, the read will begin at the file pointer produced after the write, and will thus read in spaces. This is possibly desired by the user, so it is allowed, but the aforementioned warning will be printed.
 - The specification states that we ***can*** assume file table size to be 20. I have chosen not to, and have instead set it to be the maximum number of files a user may have, multiplied by the maximum number of users.
 - The user's home directory is their username.
+- The assignment provided a basic skeleton code for the client and server. I have used that code and built off of it. The assignment also provided sample code for the implementation of a *stateless* file server, and permits its use. I have used that code and its structure for inspiration in some parts of this assignment. Aside from this, all work is my own.
 
 ## Additional Specifications
 - > You can think of the virtual disk as a sequence of blocks, each block containing 512 bytes.
