@@ -116,6 +116,8 @@ void Read(int fd, char* buffer, int num_bytes_to_read) {
 
 	printf("%s\n", result_2->out_msg.out_msg_val);
 
+	strcat(buffer, result_2->buffer.buffer_val);
+
 }
 
 
