@@ -21,6 +21,6 @@ int get_num_users_in_usersblocks();
 int get_num_user_files_in_usersblocks();
 int get_usersblocks_index_of_file();
 int get_usersblocks_index_of_user_name();
-
+void print_read_pointer_pos_warning();
 
 #endif /* SERVERUTIL_H */

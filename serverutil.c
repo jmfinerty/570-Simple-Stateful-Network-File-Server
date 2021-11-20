@@ -130,3 +130,31 @@ bool is_valid_user_name(char* user_name) {
 			return true;
 	return false;
 }
+
+
+// When a read is called without closing/reopening the file,
+// the file pointer will not have moved, so unwritten bytes in the file will be read.
+// The spec states the file should always be 64 bytes, so these space characters are a valid part of the file.
+// This will print the warning that will be shown when the read grabbed only spaces.
+// I encountered this problem very often in testing,
+// and it misled me into wasting time thinking my read function was broken.
+// This warning reminds me (or maybe the tester) when that happens.
+void print_read_pointer_pos_warning() {
+		printf("\n");
+		printf("!!!!!!!!!!! !!!!!!!!!!!  !!!!!!!!!!!  !!!!!!!!!!! !!!!!!!!!!!\n");
+		printf("!!WARNING!! !!!!!!!!!!!  !!WARNING!!  !!!!!!!!!!! !!WARNING!!\n");
+		printf("!!!!!!!!!!! !!!!!!!!!!!  !!!!!!!!!!!  !!!!!!!!!!! !!!!!!!!!!!\n");
+		printf("!!!!!!!!!!!                                        !!!!!!!!!!\n");
+		printf("!!!!!!!!!      Every byte read in was a space.      !!!!!!!!!\n");
+		printf("!!!!!!!!!    User likely didn't close and reopen    !!!!!!!!!\n");
+		printf("!!!!!!!!!    file to reset file pointer position.   !!!!!!!!!\n");
+		printf("!!!!!!!!! Files are fixed at 64 blocks * 512 bytes. !!!!!!!!!\n");
+		printf("!!!!!!!!!    Bytes not written to are thus empty,   !!!!!!!!!\n");
+		printf("!!!!!!!!!    but are still a valid part of file     !!!!!!!!!\n");
+		printf("!!!!!!!!!      and so they will still be read.      !!!!!!!!!\n");
+		printf("!!!!!!!!!!                                         !!!!!!!!!!\n");
+		printf("!!!!!!!!!!! !!!!!!!!!!!  !!!!!!!!!!!  !!!!!!!!!!! !!!!!!!!!!!\n");
+		printf("!!WARNING!! !!!!!!!!!!!  !!WARNING!!  !!!!!!!!!!! !!WARNING!!\n");
+		printf("!!!!!!!!!!! !!!!!!!!!!!  !!!!!!!!!!!  !!!!!!!!!!! !!!!!!!!!!!\n");
+		printf("\n");
+}

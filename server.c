@@ -311,6 +311,12 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	static read_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
 
+	// When a read is called without closing/reopening the file,
+	// the file pointer will not have moved, so unwritten bytes in the file will be read.
+	// The spec states the file should always be 64 bytes, so these space characters are a valid part of the file.
+	// A warning will be shown when the read grabbed only spaces.
+	char read_chars_all_spaces = true;
+
 	int bytes_to_read = argp->numbytes;
 	char out_data[bytes_to_read+1];
 	int last_buffer_index = 0;
@@ -386,6 +392,9 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 					else {
 						pos_of_block_in_blocks = ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks];
 						out_data[byte_index_in_buffer] = blocks[pos_of_block_in_blocks].data[pos_in_block_in_usersblocks];
+						if (out_data[byte_index_in_buffer] != ' ') {
+							read_chars_all_spaces = false;
+						}
 						pos_in_block_in_usersblocks += 1;
 						read = true;
 						printf("%d ", byte_index_in_buffer);
@@ -419,7 +428,8 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 		out_data[last_buffer_index] = '\0'; // null terminate string
 		result.buffer.buffer_len = strlen(out_data);
 		result.buffer.buffer_val = malloc(strlen(out_data));
-		strcpy(result.buffer.buffer_val, out_data);
+	if (read_chars_all_spaces) {
+		print_read_pointer_pos_warning();
 	}
 
 	printf("READ: End of READ.\n");
