@@ -223,7 +223,7 @@ int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersb
 // finds that file descriptor in the user's files
 // and writes the given file pointer position to the file it found
 int write_update_to_file_pointer_pos(char* user_name, char* file_name, int file_descriptor, int file_pointer_pos) {
-    for (int entry; entry < MAX_FT_SIZE; entry++)
+    for (int entry = 0; entry < MAX_FT_SIZE; entry++)
         if (strcmp(filetable->entries[entry].ownerUserName, user_name) == 0)
             if (filetable->entries[entry].fileDescriptor == file_descriptor) {
                 printf("    Moved file pointer of file with name (%s) and descriptor (%d) of user (%s) from position (%d) to (%d).", file_name, file_descriptor, user_name, filetable->entries[entry].filePointerPos, file_pointer_pos);
