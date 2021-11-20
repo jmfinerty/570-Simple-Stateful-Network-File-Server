@@ -3,7 +3,7 @@
 
 // Disk
 #define BLOCK_SIZE      512      // bytes per block, DEFINED IN ASSIGNMENT SPEC
-#define DELIM_BUF_SIZE  5        // size buffer to read \ns into when reading vdisk in
+#define DELIM_BUF_SIZE  2        // size buffer to read \ns into when reading vdisk in
 #define FILE_SIZE       64       // blocks per file, DEFINED IN ASSIGNMENT SPEC
 #define VDISK_CAPACITY  16777216 // size of virtual disk in bytes, 16mB, DEFINED IN ASSIGNMENT SPEC
 #define VDISK_DELIM     "\n"     // delimiter to seperate lines in vdisk -- \n for fgets
