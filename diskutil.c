@@ -1,6 +1,6 @@
 // University of Kentucky CS570-001 "Modern Operating Systems", Fall 2021.
 // Assignment 4: "Implement a Simple Stateful Network File Server"
-// Due November 19th, 2021 at 11:59PM.
+// Due November 22nd, 2021 at 11:59PM.
 // Work is original and by Jacob Finerty, student ID 912307438,
 // with exception of provided sample code and files.
 // Any sources referenced are cited in comments.

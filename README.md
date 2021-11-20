@@ -1,6 +1,6 @@
 # 570-Simple-Stateful-Network-File-Server
 
-Due November 19th, 2021 at 11:59PM.
+Due November 22nd, 2021 at 11:59PM.
 
 See `hw4.pdf` for full assignment specification.
 
@@ -90,4 +90,4 @@ Be cautious of opening the disk in a text editor, as it stores 16777216 bytes of
 - > Each user should be assigned by the server a home directory.
 - > Users do not have the ability to create subdirectories within their home directory.
 
-Last modification before submission: 19 Nov 2021, 9:27PM
+Last modification before submission: 22 Nov 2021, 9:27PM
