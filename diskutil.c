@@ -213,8 +213,8 @@ int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersb
             ub.blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]] = '0'; // set it to unallocated
             memset(blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block]].data, ' ', BLOCK_SIZE);
             ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block] = 0;
-            printf("    Removed file at index (%d) from user at index (%d) on disk.\n", user_index_in_usersblocks, file_index_in_usersblocks);
         }
+    printf("    Removed file at index (%d) from user at index (%d) on disk.\n", user_index_in_usersblocks, file_index_in_usersblocks);
     return 0;
 }
 
