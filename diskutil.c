@@ -206,6 +206,9 @@ int drop_entry_from_file_table(int file_descriptor) {
 // and the index of file in that user's files in usersblocks,
 // delete that file and clear the space on the disk that was allocated to it.
 // Also delete the file's entry in usersblocks.
+// NOTE: The disk space once-allocated to the block is not actually all cleared.
+// Instead, the space is /marked/ as free, and then will be overwritten later
+// if that file slot is written to again.
 int drop_file_from_vdisk(int user_index_in_usersblocks, int file_index_in_usersblocks) {
     strcpy(ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].name, DEFAULT_FILE_NAME);
     for (int block = 0; block < FILE_SIZE; block++)
