@@ -428,6 +428,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 		out_data[last_buffer_index] = '\0'; // null terminate string
 		result.buffer.buffer_len = strlen(out_data);
 		result.buffer.buffer_val = malloc(strlen(out_data));
+		strncpy(result.buffer.buffer_val, out_data, bytes_to_read+1); // +1 for null terminate
 	if (read_chars_all_spaces) {
 		print_read_pointer_pos_warning();
 	}
