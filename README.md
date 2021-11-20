@@ -80,6 +80,7 @@ Be cautious of opening the disk in a text editor, as it stores 16777216 bytes of
 - The specification states that we ***can*** assume file table size to be 20. I have chosen not to, and have instead set it to be the maximum number of files a user may have, multiplied by the maximum number of users.
 - The user's home directory is their username.
 - The assignment provided a basic skeleton code for the client and server. I have used that code and built off of it. The assignment also provided sample code for the implementation of a *stateless* file server, and permits its use. I have used that code and its structure for inspiration in some parts of this assignment. Aside from this, all work is my own.
+- To the best of my knowledge, each service and the provided sample test script operate correctly.
 
 ## Additional Specifications
 - > You can think of the virtual disk as a sequence of blocks, each block containing 512 bytes.
