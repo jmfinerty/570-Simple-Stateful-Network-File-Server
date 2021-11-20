@@ -403,7 +403,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 					if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
 						block_index_in_usersblocks += 1;
 						pos_in_block_in_usersblocks = 0;
-						printf("READ: Moved to block (%d) at position (%d) bytes.\n", block_index_in_usersblocks, pos_in_block_in_usersblocks);
+						printf("READ: Moved to position (%d) in next block in file (%s).\n", pos_in_block_in_usersblocks, file_name);
 					}
 
 					byte_index_in_buffer += 1;
@@ -525,6 +525,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 				if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
 					block_index_in_usersblocks += 1;
 					pos_in_block_in_usersblocks = 0;
+					printf("WRITE: Moved to position (%d) in next block in file (%s).\n", pos_in_block_in_usersblocks, file_name);
 				}
 
 				byte_index_in_buffer += 1;
