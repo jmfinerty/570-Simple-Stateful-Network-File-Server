@@ -250,8 +250,7 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 			// File exists in usersblocks
 			else {
 				result.fd = add_entry_to_file_table(user_name, file_name);
-				write_update_to_vdisk();
-				printf("OPEN: Added entry for file.\n");
+				printf("OPEN: Reopened previously-closed file.\n");
 			}
 
 		}
@@ -358,7 +357,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 			int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
 			int new_pos = old_pos + bytes_to_read;
 
-			printf("WRITE: File pointer will be moved from (%d) to (%d) totaling (%d) bytes.", old_pos, new_pos, bytes_to_read);
+			printf("READ: File pointer will be moved from (%d) to (%d) totaling (%d) bytes.\n", old_pos, new_pos, bytes_to_read);
 
 			if (new_pos > MAX_POINTER_POS) {
 				sprintf(out_msg, "READ: Cannot read from (%s) past EOF.", file_name);
@@ -411,7 +410,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 					last_buffer_index = byte_index_in_buffer;
 				}
 
-				printf(" from buffer.\n");
+				printf("from buffer.\n");
 				sprintf(out_msg, "READ: Read successful.");
 				write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
 
@@ -424,11 +423,13 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	strcpy(result.out_msg.out_msg_val, out_msg);
 
 	if (read) {
-		printf("READ: Read contents (%s) of length (%ld) from file.\n", out_data, strlen(out_data));
 		out_data[last_buffer_index] = '\0'; // null terminate string
 		result.buffer.buffer_len = strlen(out_data);
 		result.buffer.buffer_val = malloc(strlen(out_data));
 		strncpy(result.buffer.buffer_val, out_data, bytes_to_read+1); // +1 for null terminate
+		printf("READ: Read contents (%s) of length (%ld) from file.\n", result.buffer.buffer_val, strlen(result.buffer.buffer_val));
+	}
+
 	if (read_chars_all_spaces) {
 		print_read_pointer_pos_warning();
 	}
@@ -454,7 +455,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 	static write_output result;
 	char out_msg[OUT_MSG_BUF_LEN];
 
-	printf("\nWRITE: User (%s) requested file with descriptor (%d) have contents (%s) of length (%d) written.\n", argp->user_name, argp->fd, argp->buffer.buffer_val, argp->numbytes);
+	printf("\nWRITE: User (%s) requested file with descriptor (%d) have contents (%s) to length (%d) written.\n", argp->user_name, argp->fd, argp->buffer.buffer_val, argp->numbytes);
 
 	load_or_initialize_virtual_disk();
 
@@ -487,7 +488,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 		int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
 		int new_pos = old_pos - 1 + bytes_to_write;
 
-		printf("WRITE: File pointer will be moved from (%d) to (%d) totaling (%d) bytes.", old_pos, new_pos, bytes_to_write);
+		printf("WRITE: File pointer will be moved from (%d) to (%d) totaling (%d) bytes.\n", old_pos, new_pos, bytes_to_write);
 
 		if (new_pos > MAX_POINTER_POS) {
 			sprintf(out_msg, "WRITE: Cannot write to (%s) past EOF.", file_name);
@@ -515,9 +516,6 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 
 				else {
 					// TODO: also works, but is ridiculously long
-					if (block_index_in_usersblocks < 3) {
-						//printf("here %d %d %s", block_index_in_usersblocks, pos_in_block_in_usersblocks, blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks]].data); fflush(stdout);
-					}
 					blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks]].data[pos_in_block_in_usersblocks] =
 						argp->buffer.buffer_val[byte_index_in_buffer];
 					pos_in_block_in_usersblocks += 1;
@@ -535,7 +533,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 			write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
 			write_update_to_vdisk();
 			sprintf(out_msg, "WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
-			printf("WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
+			printf("WRITE: Wrote (%d bytes) to (%s).\n", bytes_to_write, file_name);
 
 		}
 	}
