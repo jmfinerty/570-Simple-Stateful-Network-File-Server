@@ -68,19 +68,19 @@ delete_output* delete_file_1_svc(delete_input* argp, struct svc_req* rqstp) {
 		printf("DELETE: User (%s) unknown.\n", user_name);
 	}
 
-	else if (!is_valid_file_name(get_usersblocks_index_of_user_name(user_name), file_name)) {
+	else if (!is_valid_file_name(get_di_index_of_user_name(user_name), file_name)) {
 		sprintf(out_msg, "DELETE: File (%s) unknown.", file_name);
 		printf("DELETE: File (%s) unknown.\n", file_name);
 	}
 
-	// Username and filename both exist in usersblocks
+	// Username and filename both exist in di
 	else {
-		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
-		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+		int user_index_in_di = get_di_index_of_user_name(user_name);
+		int file_index_in_di = get_di_index_of_file(user_index_in_di, file_name);
 
 		// Delete the file from the disk,
 		// then write the blocks out to the disk with the file deleted.
-		drop_file_from_vdisk(user_index_in_usersblocks, file_index_in_usersblocks);
+		drop_file_from_vdisk(user_index_in_di, file_index_in_di);
 		write_update_to_vdisk();
 
 		sprintf(out_msg, "DELETE: File (%s) deleted.", file_name);
@@ -117,11 +117,11 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 		printf("LIST: User (%s) unknown.\n", user_name);
 	}
 
-	// User exists in usersblocks
+	// User exists in di
 	else {
 
-		int user_index_in_userblocks = get_usersblocks_index_of_user_name(user_name);
-		if (get_num_user_files_in_usersblocks(user_index_in_userblocks) > 0) {
+		int user_index_in_userblocks = get_di_index_of_user_name(user_name);
+		if (get_num_user_files_in_di(user_index_in_userblocks) > 0) {
 
 			strcat(out_msg, LIST_DELIM);
 			strcpy(out_msg, "LIST");
@@ -129,17 +129,17 @@ list_output* list_files_1_svc(list_input* argp, struct svc_req* rqstp) {
 			for (int file = 0; file < MAX_USER_FILES; file++) {
 
 				// Check if file is not just unallocated space
-				if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_userblocks].files[file].name) != 0) {
+				if (strcmp(DEFAULT_FILE_NAME, di.users[user_index_in_userblocks].files[file].name) != 0) {
 					// TODO: Using strcat because I couldn't think of a better way. Is strcat unconventional?
 					strcat(out_msg, LIST_DELIM);
-					strcat(out_msg, ub.users[user_index_in_userblocks].files[file].name);
+					strcat(out_msg, di.users[user_index_in_userblocks].files[file].name);
 				}
 
 			}
 
 			printf("LIST: File names copied.\n");
 
-		// User exists in usersblocks, but has no files.
+		// User exists in di, but has no files.
 		// TODO: should this be LIST: or ERROR: ?
 		} else {
 			sprintf(out_msg, "LIST: No files found in user (%s) directory.", user_name);
@@ -196,20 +196,20 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 	if (file_index_in_filetable == -1) {
 
 		// Does user exist already?
-		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		int user_index_in_di = get_di_index_of_user_name(user_name);
 
 		// User does not exist already
-		if (user_index_in_usersblocks == -1) {
+		if (user_index_in_di == -1) {
 
 			// User doesn't exist, is there room to add them?
-			int num_users_in_usersblocks = get_num_users_in_usersblocks();
+			int num_users_in_di = get_num_users_in_di();
 
 			// There is room to add them.
 			// Add them, add their file, write these changes to the disk.
-			if (num_users_in_usersblocks < MAX_NUM_USERS) {
-				add_user_to_usersblocks(user_name);
-				user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
-				add_file_to_usersblocks(user_index_in_usersblocks, file_name);
+			if (num_users_in_di < MAX_NUM_USERS) {
+				add_user_to_di(user_name);
+				user_index_in_di = get_di_index_of_user_name(user_name);
+				add_file_to_di(user_index_in_di, file_name);
 				result.fd = add_entry_to_file_table(user_name, file_name);
 				write_update_to_vdisk();
 				printf("OPEN: User is unknown, created new directory for user.\n");
@@ -223,19 +223,19 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 		// User exists already
 		} else {
 
-			// Does the file exist in usersblocks?
-			int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+			// Does the file exist in di?
+			int file_index_in_di = get_di_index_of_file(user_index_in_di, file_name);
 
-			// File does not exist in usersblocks
-			if (file_index_in_usersblocks == -1) {
+			// File does not exist in di
+			if (file_index_in_di == -1) {
 
 				// Is there room to add it?
-				int num_user_files_in_userblocks = get_num_user_files_in_usersblocks(user_index_in_usersblocks);
+				int num_user_files_in_userblocks = get_num_user_files_in_di(user_index_in_di);
 
 				// There is room to add it
 				// Add the file, then write the change out to the disk.
 				if (num_user_files_in_userblocks < MAX_USER_FILES) {
-					add_file_to_usersblocks(user_index_in_usersblocks, file_name);
+					add_file_to_di(user_index_in_di, file_name);
 					result.fd = add_entry_to_file_table(user_name, file_name);
 					write_update_to_vdisk();
 					printf("OPEN: File is unknown, created new entry for file.\n");
@@ -247,7 +247,7 @@ open_output* open_file_1_svc(open_input* argp, struct svc_req* rqstp) {
 				}
 			}
 
-			// File exists in usersblocks
+			// File exists in di
 			else {
 				result.fd = add_entry_to_file_table(user_name, file_name);
 				printf("OPEN: Reopened previously-closed file.\n");
@@ -342,13 +342,13 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 	} else {
 
 		int file_index_in_filetable = get_filetable_index_of_file_descriptor(file_descriptor);
-		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		int user_index_in_di = get_di_index_of_user_name(user_name);
 		char* file_name = filetable->entries[file_index_in_filetable].fileName;
-		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+		int file_index_in_di = get_di_index_of_file(user_index_in_di, file_name);
 
 		// Weird bug I got a couple times.
 		// I guess file descriptor can exist but file can't?
-		if (!is_valid_file_name(user_index_in_usersblocks, file_name)) {
+		if (!is_valid_file_name(user_index_in_di, file_name)) {
 			sprintf(out_msg, "READ: File (%s) unknown.", file_name);
 			printf("READ: File (%s) unknown.\n", file_name);
 
@@ -365,45 +365,45 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 
 			} else {
 
-				int block_index_in_usersblocks = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file
-				int pos_in_block_in_usersblocks = old_pos % BLOCK_SIZE; // byte 1, 2, 3... within block 1, 2, 3...
+				int block_index_in_di = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file
+				int pos_in_block_in_di = old_pos % BLOCK_SIZE; // byte 1, 2, 3... within block 1, 2, 3...
 
 				// If the position in the block is at the end of the block,
 				// move on to the next block.
 				int pos_of_block_in_blocks;
-				if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
-					block_index_in_usersblocks += 1;
-					pos_in_block_in_usersblocks = 0;
+				if (pos_in_block_in_di == BLOCK_SIZE) {
+					block_index_in_di += 1;
+					pos_in_block_in_di = 0;
 				}
 
-				printf("READ: Block (%d) at position (%d) is start of read.\n", block_index_in_usersblocks, pos_in_block_in_usersblocks);
+				printf("READ: Block (%d) at position (%d) is start of read.\n", block_index_in_di, pos_in_block_in_di);
 
 				printf("READ: Read bytes ");
 
 				int byte_index_in_buffer = 0;
 				while (byte_index_in_buffer < bytes_to_read) {
 
-					if (block_index_in_usersblocks >= FILE_SIZE) {
+					if (block_index_in_di >= FILE_SIZE) {
 						break;
 					}
 
 					// read the next byte of the file
 					else {
-						pos_of_block_in_blocks = ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks];
-						out_data[byte_index_in_buffer] = blocks[pos_of_block_in_blocks].data[pos_in_block_in_usersblocks];
+						pos_of_block_in_blocks = di.users[user_index_in_di].files[file_index_in_di].blocks[block_index_in_di];
+						out_data[byte_index_in_buffer] = disk[pos_of_block_in_blocks].data[pos_in_block_in_di];
 						if (out_data[byte_index_in_buffer] != ' ') {
 							read_chars_all_spaces = false;
 						}
-						pos_in_block_in_usersblocks += 1;
+						pos_in_block_in_di += 1;
 						read = true;
 						printf("%d ", byte_index_in_buffer);
 					}
 
 					// move on to next block if needed
-					if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
-						block_index_in_usersblocks += 1;
-						pos_in_block_in_usersblocks = 0;
-						printf("READ: Moved to position (%d) in next block in file (%s).\n", pos_in_block_in_usersblocks, file_name);
+					if (pos_in_block_in_di == BLOCK_SIZE) {
+						block_index_in_di += 1;
+						pos_in_block_in_di = 0;
+						printf("READ: Moved to position (%d) in next block in file (%s).\n", pos_in_block_in_di, file_name);
 					}
 
 					byte_index_in_buffer += 1;
@@ -412,7 +412,7 @@ read_output* read_file_1_svc(read_input* argp, struct svc_req* rqstp) {
 
 				printf("from buffer.\n");
 				sprintf(out_msg, "READ: Read successful.");
-				write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
+				write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_di);
 
 			}
 		}
@@ -468,7 +468,7 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 		printf("WRITE: User (%s) unknown.", argp->user_name);
 
 	// TODO: This condition is absurdly long. It does work though...
-	} else if (!is_valid_file_name(get_usersblocks_index_of_user_name(argp->user_name), filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName)) {
+	} else if (!is_valid_file_name(get_di_index_of_user_name(argp->user_name), filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName)) {
 		sprintf(out_msg, "WRITE: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
 		printf("WRITE: File (%s) unknown.", filetable->entries[get_filetable_index_of_file_descriptor(argp->fd)].fileName);
 
@@ -480,10 +480,10 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 		int file_descriptor = argp->fd;
 		int bytes_to_write = argp->numbytes;
 
-		int user_index_in_usersblocks = get_usersblocks_index_of_user_name(user_name);
+		int user_index_in_di = get_di_index_of_user_name(user_name);
 		int file_index_in_filetable = get_filetable_index_of_file_descriptor(file_descriptor);
 		char* file_name = filetable->entries[file_index_in_filetable].fileName;
-		int file_index_in_usersblocks = get_usersblocks_index_of_file(user_index_in_usersblocks, file_name);
+		int file_index_in_di = get_di_index_of_file(user_index_in_di, file_name);
 
 		int old_pos = filetable->entries[file_index_in_filetable].filePointerPos;
 		int new_pos = old_pos - 1 + bytes_to_write;
@@ -495,20 +495,20 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 
 		} else {
 
-			int block_index_in_usersblocks = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file
-			int pos_in_block_in_usersblocks = old_pos % BLOCK_SIZE; // byte 1, 2, 3... within block 1, 2, 3...
+			int block_index_in_di = old_pos / BLOCK_SIZE;  // block 1, 2, 3... within file
+			int pos_in_block_in_di = old_pos % BLOCK_SIZE; // byte 1, 2, 3... within block 1, 2, 3...
 
 			// If the position in the block is at the end of the block,
 			// move on to the next block.
-			if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
-				block_index_in_usersblocks += 1;
-				pos_in_block_in_usersblocks = 0;
+			if (pos_in_block_in_di == BLOCK_SIZE) {
+				block_index_in_di += 1;
+				pos_in_block_in_di = 0;
 			}
 
 			int byte_index_in_buffer = 0;
 			while (byte_index_in_buffer < bytes_to_write) {
 
-				if (block_index_in_usersblocks >= FILE_SIZE) {
+				if (block_index_in_di >= FILE_SIZE) {
 					sprintf(out_msg, "WRITE: Reached EOF while writing to (%s).", file_name);
 					printf("WRITE: Reached EOF while writing to (%s).", file_name);
 					break;
@@ -516,22 +516,22 @@ write_output* write_file_1_svc(write_input* argp, struct svc_req* rqstp) {
 
 				else {
 					// TODO: also works, but is ridiculously long
-					blocks[ub.users[user_index_in_usersblocks].files[file_index_in_usersblocks].blocks[block_index_in_usersblocks]].data[pos_in_block_in_usersblocks] =
+					disk[di.users[user_index_in_di].files[file_index_in_di].blocks[block_index_in_di]].data[pos_in_block_in_di] =
 						argp->buffer.buffer_val[byte_index_in_buffer];
-					pos_in_block_in_usersblocks += 1;
+					pos_in_block_in_di += 1;
 				}
 
 				// move on to next block if needed
-				if (pos_in_block_in_usersblocks == BLOCK_SIZE) {
-					block_index_in_usersblocks += 1;
-					pos_in_block_in_usersblocks = 0;
-					printf("WRITE: Moved to position (%d) in next block in file (%s).\n", pos_in_block_in_usersblocks, file_name);
+				if (pos_in_block_in_di == BLOCK_SIZE) {
+					block_index_in_di += 1;
+					pos_in_block_in_di = 0;
+					printf("WRITE: Moved to position (%d) in next block in file (%s).\n", pos_in_block_in_di, file_name);
 				}
 
 				byte_index_in_buffer += 1;
 			}
 
-			write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_usersblocks);
+			write_update_to_file_pointer_pos(user_name, file_name, file_descriptor, pos_in_block_in_di);
 			write_update_to_vdisk();
 			sprintf(out_msg, "WRITE: Wrote (%d bytes) to (%s).", bytes_to_write, file_name);
 			printf("WRITE: Wrote (%d bytes) to (%s).\n", bytes_to_write, file_name);

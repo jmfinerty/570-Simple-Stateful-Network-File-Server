@@ -54,15 +54,15 @@ struct _User {                      // stores information about a user
     FileInfo files[MAX_USER_FILES]; // stores information about each of users files
 }; typedef struct _User User;
 
-struct _UsersBlocks {                       // stores information about users and the blocks they own
-    char blocks[MAX_NUM_BLOCKS+1];          // stores if block at index is allocated or not (1/0). +1 because null term. for fgets
-    User users[MAX_NUM_USERS];              // stores information about each user
-}; typedef struct _UsersBlocks UsersBlocks;
+struct _DiskInfo {                    // stores information about users and the blocks they own
+    char blocks[MAX_NUM_BLOCKS+1];    // stores if block at index is allocated or not (1/0). +1 because null term. for fgets
+    User users[MAX_NUM_USERS];        // stores information about each user
+}; typedef struct _DiskInfo DiskInfo;
 
 
 extern FileTable* filetable;
-extern UsersBlocks ub;
-extern Block blocks[MAX_NUM_BLOCKS];
+extern DiskInfo di;
+extern Block disk[MAX_NUM_BLOCKS];
 
 
 // see comments in diskutil.c
@@ -70,8 +70,8 @@ FileTable* _initialize_file_table();
 int _initialize_users_and_blocks();
 int _read_update_from_vdisk();
 int add_entry_to_file_table();
-int add_file_to_usersblocks();
-int add_user_to_usersblocks();
+int add_file_to_di();
+int add_user_to_di();
 int drop_entry_from_file_table();
 int drop_file_from_vdisk();
 int write_update_to_vdisk();

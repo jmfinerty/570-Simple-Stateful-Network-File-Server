@@ -45,32 +45,32 @@ int get_filetable_index_of_file_name(char* user_name, char* file_name) {
 
 
 // Given the index of a user, returns how many files they have. Can return 0.
-int get_num_user_files_in_usersblocks(int user_index_in_usersblocks) {
+int get_num_user_files_in_di(int user_index_in_di) {
     int result = 0;
     for (int file = 0; file < MAX_USER_FILES; file++)
-        if (strcmp(DEFAULT_FILE_NAME, ub.users[user_index_in_usersblocks].files[file].name) != 0)
+        if (strcmp(DEFAULT_FILE_NAME, di.users[user_index_in_di].files[file].name) != 0)
             result += 1;
     return result;
 }
 
 
-// Returns how many users currently exist in usersblocks.
+// Returns how many users currently exist in di.
 // TODO: this isn't needed. Could keep global tracker num_users, ++ when user added, -- when dropped.
-int get_num_users_in_usersblocks() {
+int get_num_users_in_di() {
     int result = 0;
     for (int user = 0; user < MAX_NUM_USERS; user++)
-        if (strcmp(DEFAULT_USER_NAME, ub.users[user].name) != 0)
+        if (strcmp(DEFAULT_USER_NAME, di.users[user].name) != 0)
             result += 1;
     return result;
 }
 
 
-// Given a user's index in the usersblocks and a name of one of their files,
+// Given a user's index in the di and a name of one of their files,
 // returns -1 if the filename doesn't exist for this user,
 // otherwise returns the index of the file among the user's files.
-int get_usersblocks_index_of_file(int user_index_in_usersblocks, char* file_name) {
+int get_di_index_of_file(int user_index_in_di, char* file_name) {
     for (int file = 0; file < MAX_USER_FILES; file++) {
-        if (strcmp(file_name, ub.users[user_index_in_usersblocks].files[file].name) == 0)
+        if (strcmp(file_name, di.users[user_index_in_di].files[file].name) == 0)
             return file;
     }
     return -1;
@@ -79,10 +79,10 @@ int get_usersblocks_index_of_file(int user_index_in_usersblocks, char* file_name
 
 // Given a username,
 // returns -1 if that user doesn't exist,
-// otherwise returns index of that user in the usersblocks.
-int get_usersblocks_index_of_user_name(char* user_name) {
+// otherwise returns index of that user in the di.
+int get_di_index_of_user_name(char* user_name) {
 	for (int user = 0; user < MAX_NUM_USERS; user++)
-		if (strcmp(user_name, ub.users[user].name) == 0) // 0 = exact match
+		if (strcmp(user_name, di.users[user].name) == 0) // 0 = exact match
 			return user;
 	return -1;
 }
@@ -115,18 +115,18 @@ bool is_valid_file_descriptor(int file_descriptor) {
 // Otherwise returns true.
 bool is_valid_file_name(int user_index, char* file_name) {
 	for (int file = 0; file < MAX_USER_FILES; file++)
-		if (strcmp(file_name, ub.users[user_index].files[file].name) == 0)
+		if (strcmp(file_name, di.users[user_index].files[file].name) == 0)
 			return true;
 	return false;
 }
 
 
 // Checks if a user name is valid.
-// Returns false if the username doesn't exist in the usersblocks.
+// Returns false if the username doesn't exist in the di.
 // Otherwise returns true.
 bool is_valid_user_name(char* user_name) {
 	for (int user = 0; user < MAX_NUM_USERS; user++)
-		if (strcmp(user_name, ub.users[user].name) == 0) // 0 = exact match
+		if (strcmp(user_name, di.users[user].name) == 0) // 0 = exact match
 			return true;
 	return false;
 }
