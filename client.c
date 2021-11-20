@@ -165,18 +165,20 @@ int main (int argc, char *argv[]) {
 	// PASTE TESTING CODE BELOW HERE
 	// ==================================================
 
+	// TESTING SCRIPT GIVEN IN ASSIGNMENT
+	// Spec: "code that I will use in the main() of your client program for testing is provided below"
 	int i,j;
 	int fd1,fd2;
 	char buffer[100];
 	fd1=Open("File1"); // opens the file "File1"
 	for (i=0; i< 20;i++){
-	Write(fd1, "This is a test program for cs570 assignment 4", 15);
+		Write(fd1, "This is a test program for cs570 assignment 4", 15);
 	}
 	Close(fd1);
 	fd2=Open("File1");
 	for (j=0; j< 20;j++){
-	Read(fd2, buffer, 10);
-	printf("%s\n",buffer);
+		Read(fd2, buffer, 10);
+		printf("%s\n",buffer);
 	}
 	Close(fd2);
 	Delete("File1");
