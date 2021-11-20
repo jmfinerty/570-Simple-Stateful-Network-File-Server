@@ -5,7 +5,7 @@ See `hw4.pdf` for full assignment specification.
 ## Building Executables
 From the code's directory, run `make`. Make will run `rpcgen`. Note that use of `make clean` will remove the virtual disk and thus the stateful storage.
 
-If errors like `"Cannot register service..."` occur, check with `rpcinfo` that the RPC portmapper service is running. If this does not work, install `portmap` and run `rpcbind`. 
+If errors like `"Cannot register service..."` occur, check with `rpcinfo` that the RPC portmapper service is running. If this does not work, install `portmap` and run `rpcbind`.
 
 ## Running Executables
 The server executable can simply be run with `./server`. The client executable can be run with `./client host`. If the server is running locally, this can just be `./client localhost`.
@@ -74,14 +74,14 @@ At the end of this header, the data is stored.
 Be cautious of opening the disk in a text editor, as it stores 16777216 bytes of data, plus a header and delimiters. This usually crashes VSCode on my machine.
 
 ## Additional Notes
-- Each of these files, services, and functions is fully commented. 
+- Each of these files, services, and functions is fully commented.
 - File descriptors are always unique. If a file is opened, then closed, then opened, the file descriptor returned by the second open will be different from that returned by the first. However, they will both still represent the same file and contents. File content location is based on file name.
-- A warning will be printed in the server if it appears that the user read from a file without first resetting the pointer. Files are required to be 64 blocks of 512 bytes. Bytes not written to must exist in the file, but be empty. I represent this with space characters. So, if a user opens, then writes, then reads, the read will begin at the file pointer produced after the write, and will thus read in spaces. This is possibly desired by the user, so it is allowed, but the aforementioned warning will be printed. 
+- A warning will be printed in the server if it appears that the user read from a file without first resetting the pointer. Files are required to be 64 blocks of 512 bytes. Bytes not written to must exist in the file, but be empty. I represent this with space characters. So, if a user opens, then writes, then reads, the read will begin at the file pointer produced after the write, and will thus read in spaces. This is possibly desired by the user, so it is allowed, but the aforementioned warning will be printed.
 - The specification states that we ***can*** assume file table size to be 20. I have chosen not to, and have instead set it to be the maximum number of files a user may have, multiplied by the maximum number of users.
 - The user's home directory is their username.
 
 ## Additional Specifications
 - > You can think of the virtual disk as a sequence of blocks, each block containing 512 bytes.
-- > You can also assume that the capacity of virtual disk is 16MB. 
+- > You can also assume that the capacity of virtual disk is 16MB.
 - > Each user should be assigned by the server a home directory.
 - > Users do not have the ability to create subdirectories within their home directory.
